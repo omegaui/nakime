@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nakime/config/app_colors.dart';
 import 'package:nakime/core/sessions/live_session.dart';
-import 'package:nakime/pages/home_page.dart';
+import 'package:nakime/pages/home/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: "Nakime",
       debugShowCheckedModeBanner: false,
-      theme: _buildTheme(context, MediaQuery.platformBrightnessOf(context)),
+      theme: _buildTheme(context, Brightness.light),
       home: const HomePage(),
       defaultTransition: Transition.leftToRight,
       transitionDuration: Duration.zero,
@@ -39,5 +39,10 @@ ThemeData _buildTheme(BuildContext context, Brightness brightness) {
   return baseTheme.copyWith(
     colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
     textTheme: GoogleFonts.poppinsTextTheme(baseTheme.textTheme),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.surface,
+      ),
+    ),
   );
 }

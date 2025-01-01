@@ -27,4 +27,27 @@ extension TimeExtension on Duration {
     content += "$sec second$s";
     return content;
   }
+
+  String get timeShort {
+    var data = toString();
+    data = data.substring(0, data.indexOf('.'));
+    final split = data.split(":");
+    var hours = split[0].asInt();
+    final min = split[1].asInt();
+    final sec = split[2].asInt();
+    var content = "";
+    if (hours > 0) {
+      if (hours >= 24) {
+        final days = hours ~/ 24;
+        content += "$days d ";
+        hours = hours.remainder(24);
+      }
+      content += "$hours h ";
+    }
+    if (hours > 0 || min > 0) {
+      content += "$min m ";
+    }
+    content += "$sec s";
+    return content;
+  }
 }
