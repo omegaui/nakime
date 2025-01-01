@@ -60,22 +60,62 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
       final totalTime = _sessions.fold(Duration.zero, (a, b) => a + b.time) + widget.liveUptime;
       totalUptime = totalTime.timeShort;
     }
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (final session in _sessions) ...[
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final session in _sessions) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Session ${session.id}",
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  session.time.timeShort,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ],
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Session ${session.id}",
+                "Session ${_sessions.length + 1}",
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
-                session.time.timeShort,
+                widget.liveUptime.timeShort,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Total Uptime",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                totalUptime,
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -84,45 +124,7 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
             ],
           ),
         ],
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "Session ${_sessions.length + 1}",
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Text(
-              widget.liveUptime.timeShort,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              "Total Uptime",
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Text(
-              totalUptime,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ],
+      ),
     );
   }
 }

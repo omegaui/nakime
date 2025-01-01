@@ -124,10 +124,10 @@ class _HomePageState extends State<HomePage> {
             duration: const Duration(milliseconds: 500),
             child: _showMoreStats
                 ? LimitedBox(
-                    maxWidth: 180,
+                    maxWidth: 200,
                     maxHeight: 180,
                     child: SizedBox(
-                      width: 180,
+                      width: 200,
                       child: SessionSummaryToday(
                         liveUptime: elapsed,
                       ),
