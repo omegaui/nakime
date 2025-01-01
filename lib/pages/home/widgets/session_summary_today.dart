@@ -1,7 +1,10 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:nakime/config/app_colors.dart';
+import 'package:nakime/core/extensions/font_weight_extension.dart';
 import 'package:nakime/core/extensions/time_extension.dart';
+import 'package:nakime/core/sessions/live_session.dart';
 import 'package:nakime/core/sessions/session_reader.dart';
 
 class SessionSummaryToday extends StatefulWidget {
@@ -19,6 +22,12 @@ class SessionSummaryToday extends StatefulWidget {
 class _SessionSummaryTodayState extends State<SessionSummaryToday> {
   bool _initialized = false;
   List<Session> _sessions = [];
+  bool _shownSmoothAnimation = false;
+
+  List<Color> gradientColors = [
+    Colors.grey.shade700,
+    Colors.grey.shade900,
+  ];
 
   @override
   void initState() {
@@ -29,16 +38,40 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
         setState(() {
           _initialized = true;
         });
+        Future.delayed(
+          const Duration(milliseconds: 500),
+          () {},
+        );
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_initialized) {
+    final brightness = MediaQuery.platformBrightnessOf(context);
+    if (!_initialized || !_shownSmoothAnimation) {
+      if (!_shownSmoothAnimation) {
+        Future.delayed(
+          const Duration(milliseconds: 100),
+          () {
+            setState(() {
+              _shownSmoothAnimation = true;
+            });
+          },
+        );
+      }
+      if(!_shownSmoothAnimation) {
+        return const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Gap(100),
+          ],
+        );
+      }
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          const Gap(18),
           const Text(
             "Reading Sessions",
             style: TextStyle(
@@ -57,7 +90,8 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
     }
     var totalUptime = "0 s";
     if (_sessions.isNotEmpty) {
-      final totalTime = _sessions.fold(Duration.zero, (a, b) => a + b.time) + widget.liveUptime;
+      final totalTime = _sessions.fold(Duration.zero, (a, b) => a + b.time) +
+          widget.liveUptime;
       totalUptime = totalTime.timeShort;
     }
     return SingleChildScrollView(
@@ -70,16 +104,16 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
               children: [
                 Text(
                   "Session ${session.id}",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w600.themed(brightness),
                   ),
                 ),
                 Text(
                   session.time.timeShort,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w600.themed(brightness),
                   ),
                 ),
               ],
@@ -89,17 +123,17 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Session ${_sessions.length + 1}",
-                style: const TextStyle(
+                "This Session",
+                style: TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w600.themed(brightness),
                 ),
               ),
               Text(
                 widget.liveUptime.timeShort,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w600.themed(brightness),
                 ),
               ),
             ],
@@ -107,21 +141,62 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 "Total Uptime",
                 style: TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w600.themed(brightness),
                 ),
               ),
               Text(
                 totalUptime,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w600.themed(brightness),
                 ),
               ),
             ],
+          ),
+          const Gap(10),
+          if(_sessions.isNotEmpty) ... [
+            Text(
+              "Gap b/w last & current session\n${_sessions.last.end.difference(LiveSession.systemStartupTime).timeShort}",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600.themed(brightness),
+              ),
+            ),
+          ] else ... [
+            Text(
+              "This is today's first session",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600.themed(brightness),
+              ),
+            ),
+          ],
+          TextButton(
+            onPressed: () {
+
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.history_rounded,
+                ),
+                const Gap(4),
+                Text(
+                  "View Previous Sessions",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600.themed(brightness),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

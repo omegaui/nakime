@@ -9,23 +9,39 @@ import 'package:nakime/pages/home/home_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Window.initialize();
-  await Window.setEffect(
-    effect: WindowEffect.acrylic,
-    dark: false,
-  );
   await LiveSession.init();
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  bool _initWindow = false;
+
+  Future<void> initWindow(Brightness brightness) async {
+    if(!_initWindow) {
+      _initWindow = true;
+      await Window.setEffect(
+        effect: WindowEffect.hudWindow,
+        dark: brightness == Brightness.dark,
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final brightness = MediaQuery.platformBrightnessOf(context);
+    initWindow(brightness);
     return GetMaterialApp(
       title: "Nakime",
       debugShowCheckedModeBanner: false,
-      theme: _buildTheme(context, Brightness.light),
+      theme: _buildTheme(context, brightness),
       home: const HomePage(),
       defaultTransition: Transition.leftToRight,
       transitionDuration: Duration.zero,
@@ -35,13 +51,14 @@ class MyApp extends StatelessWidget {
 
 ThemeData _buildTheme(BuildContext context, Brightness brightness) {
   var baseTheme = ThemeData(brightness: brightness);
+  final isDarkMode = brightness == Brightness.dark;
 
   return baseTheme.copyWith(
     colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
     textTheme: GoogleFonts.poppinsTextTheme(baseTheme.textTheme),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: AppColors.surface,
+        foregroundColor: isDarkMode ? Colors.white : AppColors.surface,
       ),
     ),
   );

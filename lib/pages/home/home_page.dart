@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:nakime/config/app_icons.dart';
+import 'package:nakime/core/extensions/font_weight_extension.dart';
 import 'package:nakime/core/extensions/live_session_state_extension.dart';
 import 'package:nakime/core/extensions/time_extension.dart';
 import 'package:nakime/core/sessions/live_session.dart';
@@ -43,6 +45,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildContent() {
+    final brightness = MediaQuery.platformBrightnessOf(context);
     if (LiveSession.state.isEmpty) {
       return Center(
         child: Padding(
@@ -119,23 +122,30 @@ class _HomePageState extends State<HomePage> {
               fontSize: 22,
             ),
           ),
-          Gap(_showMoreStats ? 20 : 4),
+          const Gap(4),
           AnimatedSize(
             duration: const Duration(milliseconds: 500),
             child: _showMoreStats
-                ? LimitedBox(
-                    maxWidth: 200,
-                    maxHeight: 180,
-                    child: SizedBox(
-                      width: 200,
-                      child: SessionSummaryToday(
-                        liveUptime: elapsed,
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minWidth: 200,
+                        maxWidth: 200,
+                        minHeight: 80,
+                        maxHeight: 210,
+                      ),
+                      child: SizedBox(
+                        width: 200,
+                        child: SessionSummaryToday(
+                          liveUptime: elapsed,
+                        ),
                       ),
                     ),
                   )
                 : const SizedBox(),
           ),
-          Gap(_showMoreStats ? 20 : 4),
+          const Gap(4),
           TextButton(
             onPressed: () {
               setState(() {
@@ -149,9 +159,9 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Text(
                     _showMoreStats ? "Collapse" : "See More",
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w600.themed(brightness),
                     ),
                   ),
                   Icon(
