@@ -27,9 +27,10 @@ class _MyAppState extends State<MyApp> {
   Future<void> initWindow(Brightness brightness) async {
     if(!_initWindow) {
       _initWindow = true;
+      final isDarkMode = brightness == Brightness.dark;
       await Window.setEffect(
-        effect: WindowEffect.hudWindow,
-        dark: brightness == Brightness.dark,
+        effect: isDarkMode ? WindowEffect.mica : WindowEffect.hudWindow,
+        dark: isDarkMode,
       );
     }
   }

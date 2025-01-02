@@ -89,11 +89,11 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
       );
     }
     var totalUptime = "0 s";
+    var totalTime = Duration.zero;
     if (_sessions.isNotEmpty) {
-      final totalTime = _sessions.fold(Duration.zero, (a, b) => a + b.time) +
-          widget.liveUptime;
-      totalUptime = totalTime.timeShort;
+      totalTime = _sessions.fold(totalTime, (a, b) => a + b.time);
     }
+    totalUptime = (totalTime + widget.liveUptime).timeShort;
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -160,7 +160,7 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
           const Gap(10),
           if(_sessions.isNotEmpty) ... [
             Text(
-              "Gap b/w last & current session\n${_sessions.last.end.difference(LiveSession.systemStartupTime).timeShort}",
+              "Gap b/w last & current session\n${LiveSession.systemStartupTime.difference(_sessions.last.end).timeShort}",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
@@ -176,6 +176,7 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
                 fontWeight: FontWeight.w600.themed(brightness),
               ),
             ),
+            const Gap(5),
           ],
           TextButton(
             onPressed: () {
