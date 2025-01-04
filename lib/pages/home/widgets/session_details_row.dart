@@ -34,25 +34,29 @@ class _SessionDetailsRowState extends State<SessionDetailsRow> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (_hover) const Gap(2),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Session ${widget.session.id}",
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600.themed(brightness),
+            if (_hover) const Gap(6),
+            AnimatedScale(
+              duration: const Duration(milliseconds: 250),
+              scale: _hover ? 0.82 : 1.0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Session ${widget.session.id}",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600.themed(brightness),
+                    ),
                   ),
-                ),
-                Text(
-                  widget.session.time.timeShort,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600.themed(brightness),
+                  Text(
+                    widget.session.time.timeShort,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600.themed(brightness),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             AnimatedSize(
               duration: const Duration(milliseconds: 250),
