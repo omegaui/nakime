@@ -33,7 +33,7 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
   void initState() {
     super.initState();
     Future(() async {
-      _sessions = await SessionReader.readSession(DateTime.now());
+      _sessions = await SessionReader.readSession(LiveSession.systemStartupTime);
       if (mounted) {
         setState(() {
           _initialized = true;
