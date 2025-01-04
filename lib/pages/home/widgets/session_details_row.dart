@@ -8,9 +8,11 @@ class SessionDetailsRow extends StatefulWidget {
   const SessionDetailsRow({
     super.key,
     required this.session,
+    this.previous,
   });
 
   final Session session;
+  final Session? previous;
 
   @override
   State<SessionDetailsRow> createState() => _SessionDetailsRowState();
@@ -32,6 +34,7 @@ class _SessionDetailsRowState extends State<SessionDetailsRow> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (_hover) const Gap(2),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -55,7 +58,7 @@ class _SessionDetailsRowState extends State<SessionDetailsRow> {
               duration: const Duration(milliseconds: 250),
               child: _hover
                   ? SizedBox(
-                      height: 56,
+                      height: widget.previous != null ? 62 : 56,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -63,6 +66,15 @@ class _SessionDetailsRowState extends State<SessionDetailsRow> {
                             Icons.keyboard_arrow_down,
                             size: 12,
                           ),
+                          if (widget.previous != null) ...[
+                            Text(
+                              "Started after ${widget.session.start.difference(widget.previous!.end).timeShort}",
+                              style: TextStyle(
+                                fontSize: 8,
+                                fontWeight: FontWeight.w600.themed(brightness),
+                              ),
+                            ),
+                          ],
                           Text(
                             widget.session.dayRange,
                             style: TextStyle(

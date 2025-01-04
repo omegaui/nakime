@@ -98,8 +98,11 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          for (final session in _sessions) ...[
-            SessionDetailsRow(session: session),
+          for (int i = 0; i < _sessions.length; i++) ...[
+            SessionDetailsRow(
+              session: _sessions[i],
+              previous: i > 0 ? _sessions[i - 1] : null,
+            ),
           ],
           SessionDetailsRow(
             session: Session(
