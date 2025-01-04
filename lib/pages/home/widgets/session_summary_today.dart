@@ -5,6 +5,7 @@ import 'package:nakime/core/extensions/font_weight_extension.dart';
 import 'package:nakime/core/extensions/time_extension.dart';
 import 'package:nakime/core/sessions/live_session.dart';
 import 'package:nakime/core/sessions/session_reader.dart';
+import 'package:nakime/pages/home/widgets/session_details_row.dart';
 
 class SessionSummaryToday extends StatefulWidget {
   const SessionSummaryToday({
@@ -59,7 +60,7 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
           },
         );
       }
-      if(!_shownSmoothAnimation) {
+      if (!_shownSmoothAnimation) {
         return const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -98,44 +99,14 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final session in _sessions) ...[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Session ${session.id}",
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600.themed(brightness),
-                  ),
-                ),
-                Text(
-                  session.time.timeShort,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600.themed(brightness),
-                  ),
-                ),
-              ],
-            ),
+            SessionDetailsRow(session: session),
           ],
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "This Session",
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600.themed(brightness),
-                ),
-              ),
-              Text(
-                widget.liveUptime.timeShort,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600.themed(brightness),
-                ),
-              ),
-            ],
+          SessionDetailsRow(
+            session: Session(
+              id: _sessions.length + 1,
+              start: LiveSession.systemStartupTime,
+              end: DateTime.now(),
+            ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -157,7 +128,7 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
             ],
           ),
           const Gap(10),
-          if(_sessions.isNotEmpty) ... [
+          if (_sessions.isNotEmpty) ...[
             Text(
               "Gap b/w last & current session\n${LiveSession.systemStartupTime.difference(_sessions.last.end).timeShort}",
               textAlign: TextAlign.center,
@@ -166,7 +137,7 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
                 fontWeight: FontWeight.w600.themed(brightness),
               ),
             ),
-          ] else ... [
+          ] else ...[
             Text(
               "This is today's first session",
               textAlign: TextAlign.center,
@@ -178,9 +149,7 @@ class _SessionSummaryTodayState extends State<SessionSummaryToday> {
             const Gap(5),
           ],
           TextButton(
-            onPressed: () {
-
-            },
+            onPressed: () {},
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

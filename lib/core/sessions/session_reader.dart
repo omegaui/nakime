@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:intl/intl.dart';
 import 'package:nakime/core/constants/service_constants.dart';
 import 'package:nakime/core/extensions/day_extension.dart';
 import 'package:nakime/core/extensions/number_extension.dart';
@@ -17,6 +18,19 @@ class Session {
   });
 
   Duration get time => end.difference(start);
+
+  String get dayRange {
+    if (start.isSameDay(end)) {
+      return DateFormat("EEE, MMM d, yyyy").format(start);
+    } else if (start.isSameYear(end)) {
+      return "From ${DateFormat("EEE, MMM d").format(start)} to ${DateFormat("EEE, MMM d").format(end)}";
+    }
+    return "From ${DateFormat("EEE, MMM d, yyyy").format(start)} to ${DateFormat("EEE, MMM d, yyyy").format(end)}";
+  }
+
+  String get timeRange {
+    return "From ${DateFormat("HH:mm:ss").format(start)} to ${DateFormat("HH:mm:ss").format(end)}";
+  }
 
   factory Session.fromDoc(Map<String, dynamic> doc) {
     List<String> startDay = doc["SessionStartDay"].split('-');
