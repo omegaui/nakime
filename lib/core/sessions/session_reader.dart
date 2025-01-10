@@ -29,7 +29,7 @@ class Session {
   }
 
   String get timeRange {
-    return "From ${DateFormat("HH:mm:ss").format(start)} to ${DateFormat("HH:mm:ss").format(end)}";
+    return "${DateFormat("hh:mm a").format(start)} - ${DateFormat("hh:mm a").format(end)}";
   }
 
   factory Session.fromDoc(Map<String, dynamic> doc) {

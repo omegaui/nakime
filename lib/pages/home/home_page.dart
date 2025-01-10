@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:nakime/config/app_icons.dart';
+import 'package:nakime/config/app_colors.dart';
 import 'package:nakime/core/extensions/font_weight_extension.dart';
 import 'package:nakime/core/extensions/live_session_state_extension.dart';
 import 'package:nakime/core/extensions/time_extension.dart';
 import 'package:nakime/core/sessions/live_session.dart';
-import 'package:nakime/pages/home/widgets/session_summary_today.dart';
+import 'package:nakime/pages/stats/today_stats_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,8 +19,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Timer? realTimeSessionTimer;
   Duration elapsed = Duration.zero;
-
-  bool _showMoreStats = false;
 
   @override
   void initState() {
@@ -123,53 +121,19 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const Gap(4),
-          AnimatedSize(
-            duration: const Duration(milliseconds: 500),
-            child: _showMoreStats
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        minWidth: 200,
-                        maxWidth: 200,
-                        minHeight: 80,
-                        maxHeight: 210,
-                      ),
-                      child: SizedBox(
-                        width: 200,
-                        child: SessionSummaryToday(
-                          liveUptime: elapsed,
-                        ),
-                      ),
-                    ),
-                  )
-                : const SizedBox(),
-          ),
-          const Gap(4),
           TextButton(
             onPressed: () {
-              setState(() {
-                _showMoreStats = !_showMoreStats;
-              });
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const TodayStatsPage()),
+              );
             },
-            child: Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _showMoreStats ? "Collapse" : "See More",
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600.themed(brightness),
-                    ),
-                  ),
-                  Icon(
-                    _showMoreStats
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
-                  ),
-                ],
+            child: Text(
+              "View Stats",
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.onSurface,
+                fontWeight: FontWeight.w600.themed(brightness),
               ),
             ),
           ),

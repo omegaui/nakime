@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:nakime/core/extensions/number_extension.dart';
 
 extension TimeExtension on Duration {
@@ -49,5 +50,11 @@ extension TimeExtension on Duration {
     }
     content += "$sec s";
     return content;
+  }
+
+  String get formattedTime {
+    final DateTime dateTime = DateTime(0).add(this);
+    final DateFormat formatter = DateFormat('hh:mm a');
+    return formatter.format(dateTime);
   }
 }

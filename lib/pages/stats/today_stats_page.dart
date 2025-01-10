@@ -1,0 +1,396 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
+import 'package:nakime/config/app_colors.dart';
+import 'package:nakime/core/extensions/font_weight_extension.dart';
+import 'package:nakime/core/extensions/time_extension.dart';
+import 'package:nakime/core/sessions/live_session.dart';
+import 'package:nakime/core/sessions/session_reader.dart';
+
+class TodayStatsPage extends StatefulWidget {
+  const TodayStatsPage({super.key});
+
+  @override
+  State<TodayStatsPage> createState() => _TodayStatsPageState();
+}
+
+class _TodayStatsPageState extends State<TodayStatsPage> {
+  bool _initialized = false;
+  List<Session> _sessions = [];
+  List<Duration> _idleTimes = [];
+  VoidCallback? updateLiveTile;
+  Timer? liveTileUpdateTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    Future(() async {
+      _sessions =
+          await SessionReader.readSession(LiveSession.systemStartupTime);
+      if (mounted) {
+        setState(() {
+          _initialized = true;
+        });
+      }
+      liveTileUpdateTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (timer) {
+          updateLiveTile?.call();
+        },
+      );
+    });
+  }
+
+  Widget _buildContent() {
+    if (_initialized) {
+      return _buildInitializedView();
+    } else {
+      return _buildLoadingView();
+    }
+  }
+
+  Widget _buildLoadingView() {
+    final brightness = MediaQuery.platformBrightnessOf(context);
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircularProgressIndicator(
+            color: AppColors.onSurface,
+          ),
+          const Gap(20),
+          Text(
+            "Please wait\nreading sessions",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.w600.themed(brightness),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInitializedView() {
+    final brightness = MediaQuery.platformBrightnessOf(context);
+    _idleTimes.clear();
+    return Column(
+      children: [
+        SizedBox(
+          height: 40,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(
+                      Icons.arrow_back,
+                    ),
+                  ),
+                  const Gap(10),
+                  const Text(
+                    "Session Stats",
+                    style: TextStyle(
+                      fontSize: 22,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const Gap(20),
+        if (_sessions.isNotEmpty) ...[
+          Expanded(
+            child: ListView.separated(
+              itemCount: _sessions.length + 1,
+              separatorBuilder: (context, index) {
+                if (index + 1 < _sessions.length) {
+                  final previous = _sessions[index];
+                  final session = _sessions[index + 1];
+                  final idleTime = session.start.difference(previous.end);
+                  _idleTimes.add(idleTime);
+                  return Center(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      child: Text(
+                        "${idleTime.timeShort} idle",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.onSurface,
+                          fontWeight: FontWeight.w600.themed(brightness),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                return const Gap(10);
+              },
+              itemBuilder: (context, index) {
+                if (index == _sessions.length) {
+                  return Center(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      child: Text(
+                        "total idle time\n${_idleTimes.fold(Duration.zero, (a, b) => a + b).timeShort}",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.onSurface,
+                          fontWeight: FontWeight.w600.themed(brightness),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                final session = _sessions[index];
+                return ListTile(
+                  onTap: () {},
+                  title: Text(
+                    "Session ${session.id}",
+                    style: TextStyle(
+                      color: AppColors.onSurface,
+                    ),
+                  ),
+                  subtitle: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        session.dayRange,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.onSurface,
+                          fontWeight: FontWeight.w600.themed(brightness),
+                        ),
+                      ),
+                      Text(
+                        session.timeRange,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.onSurface,
+                          fontWeight: FontWeight.w600.themed(brightness),
+                        ),
+                      ),
+                    ],
+                  ),
+                  trailing: SizedBox(
+                    width: 140,
+                    height: 50,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          session.time.timeShort,
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.onSurface,
+                            fontWeight: FontWeight.w600.themed(brightness),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ] else ...[
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Once you do more sessions, they will appear here.",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600.themed(brightness),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+        StatefulBuilder(builder: (context, setSingletonState) {
+          final liveSession = Session(
+            id: _sessions.length + 1,
+            start: LiveSession.systemStartupTime,
+            end: DateTime.now(),
+          );
+
+          var totalUptime = "0 s";
+          var totalTime = Duration.zero;
+          if (_sessions.isNotEmpty) {
+            totalTime = _sessions.fold(totalTime, (a, b) => a + b.time);
+          }
+          totalUptime = (totalTime + liveSession.time).timeShort;
+
+          updateLiveTile = () {
+            setSingletonState(() {});
+          };
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                tileColor: AppColors.primary.withOpacity(0.2),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(12),
+                    topLeft: Radius.circular(12),
+                  ),
+                ),
+                title: Text(
+                  "Live Session",
+                  style: TextStyle(
+                    color: AppColors.onSurface,
+                  ),
+                ),
+                subtitle: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      liveSession.dayRange,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.onSurface,
+                        fontWeight: FontWeight.w600.themed(brightness),
+                      ),
+                    ),
+                    Text(
+                      liveSession.timeRange,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.onSurface,
+                        fontWeight: FontWeight.w600.themed(brightness),
+                      ),
+                    ),
+                  ],
+                ),
+                trailing: SizedBox(
+                  width: 140,
+                  height: 50,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        liveSession.time.timeShort,
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.onSurface,
+                          fontWeight: FontWeight.w600.themed(brightness),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              ListTile(
+                tileColor: AppColors.primary.withOpacity(0.23),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    bottomRight: Radius.circular(12),
+                    bottomLeft: Radius.circular(12),
+                  ),
+                ),
+                title: Text(
+                  "Total System Uptime",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: AppColors.onSurface,
+                  ),
+                ),
+                subtitle: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: () {},
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.info_outlined,
+                          size: 14,
+                          color: AppColors.onSurface,
+                        ),
+                        const Gap(3),
+                        Text(
+                          "See more insights",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.onSurface,
+                            fontWeight: FontWeight.w600.themed(brightness),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                trailing: SizedBox(
+                  width: 140,
+                  height: 50,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        totalUptime,
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.onSurface,
+                          fontWeight: FontWeight.w600.themed(brightness),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        }),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: _buildContent(),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    liveTileUpdateTimer?.cancel();
+    super.dispose();
+  }
+}

@@ -21,13 +21,16 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   bool _initWindow = false;
 
   Future<void> initWindow(Brightness brightness) async {
-    if(!_initWindow) {
+    if (!_initWindow) {
       _initWindow = true;
       final isDarkMode = brightness == Brightness.dark;
+      if (!isDarkMode) {
+        AppColors.onSurface = Colors.black;
+        AppColors.surface = Colors.white;
+      }
       await Window.setEffect(
         effect: isDarkMode ? WindowEffect.mica : WindowEffect.hudWindow,
         dark: isDarkMode,
