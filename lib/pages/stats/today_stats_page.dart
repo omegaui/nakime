@@ -18,7 +18,6 @@ class TodayStatsPage extends StatefulWidget {
 class _TodayStatsPageState extends State<TodayStatsPage> {
   bool _initialized = false;
   List<Session> _sessions = [];
-  List<Duration> _idleTimes = [];
   VoidCallback? updateLiveTile;
   Timer? liveTileUpdateTimer;
 
@@ -72,9 +71,19 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
     );
   }
 
+  Duration _totalIdleTime() {
+    Duration result = Duration.zero;
+    for (int index = 0; index + 1 < _sessions.length; index++) {
+      final previous = _sessions[index];
+      final session = _sessions[index + 1];
+      final idleTime = session.start.difference(previous.end);
+      result += idleTime;
+    }
+    return result;
+  }
+
   Widget _buildInitializedView() {
     final brightness = MediaQuery.platformBrightnessOf(context);
-    _idleTimes.clear();
     return Column(
       children: [
         SizedBox(
@@ -115,7 +124,6 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
                   final previous = _sessions[index];
                   final session = _sessions[index + 1];
                   final idleTime = session.start.difference(previous.end);
-                  _idleTimes.add(idleTime);
                   return Center(
                     child: Container(
                       margin: const EdgeInsets.symmetric(vertical: 10),
@@ -154,7 +162,7 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
                         vertical: 10,
                       ),
                       child: Text(
-                        "total idle time\n${_idleTimes.fold(Duration.zero, (a, b) => a + b).timeShort}",
+                        "Total system idle time\n${_totalIdleTime().timeShort}",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 12,
