@@ -66,16 +66,17 @@ ThemeData _buildTheme(BuildContext context, Brightness brightness) {
     colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
     textTheme: GoogleFonts.poppinsTextTheme(baseTheme.textTheme),
     tooltipTheme: TooltipThemeData(
-        waitDuration: const Duration(milliseconds: 500),
-        decoration: BoxDecoration(
-          color: AppColors.primary.withOpacity(0.12),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        textStyle: TextStyle(
-          fontSize: 12,
-          color: AppColors.onSurface,
-          fontWeight: FontWeight.w600.themed(brightness),
-        )),
+      waitDuration: const Duration(milliseconds: 500),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      textStyle: TextStyle(
+        fontSize: 12,
+        color: AppColors.onSurface,
+        fontWeight: FontWeight.w600.themed(brightness),
+      ),
+    ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: isDarkMode ? Colors.white : AppColors.surface,

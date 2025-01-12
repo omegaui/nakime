@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:nakime/config/app_colors.dart';
 import 'package:nakime/core/extensions/day_extension.dart';
@@ -9,6 +10,7 @@ import 'package:nakime/core/extensions/font_weight_extension.dart';
 import 'package:nakime/core/extensions/time_extension.dart';
 import 'package:nakime/core/sessions/live_session.dart';
 import 'package:nakime/core/sessions/session_reader.dart';
+import 'package:nakime/pages/timeline/timeline_page.dart';
 
 class TodayStatsPage extends StatefulWidget {
   const TodayStatsPage({super.key});
@@ -394,7 +396,9 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
                 subtitle: MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Get.to(() => const TimelinePage());
+                    },
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
