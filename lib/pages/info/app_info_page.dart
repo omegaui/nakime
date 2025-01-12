@@ -58,7 +58,7 @@ class AppInfoPage extends StatelessWidget {
                       filterQuality: FilterQuality.high,
                     ),
                   ),
-                  const Gap(10),
+                  const Gap(20),
                   const Text(
                     "Nakime",
                     style: TextStyle(

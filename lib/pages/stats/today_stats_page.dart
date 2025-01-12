@@ -82,7 +82,7 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
       result += idleTime;
     }
     if (_sessions.isNotEmpty) {
-      final idleTime = LiveSession.systemStartupTime.difference(_sessions.last.start);
+      final idleTime = LiveSession.systemStartupTime.difference(_sessions.last.end);
       result += idleTime;
     }
     return result;
@@ -157,25 +157,50 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
               itemBuilder: (context, index) {
                 if (index == _sessions.length) {
                   return Center(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      child: Text(
-                        "Total system idle time\n${_totalIdleTime().timeShort}",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.onSurface,
-                          fontWeight: FontWeight.w600.themed(brightness),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
+                          child: Text(
+                            "${LiveSession.systemStartupTime.difference(_sessions.last.end).timeShort} idle",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.onSurface,
+                              fontWeight: FontWeight.w600.themed(brightness),
+                            ),
+                          ),
                         ),
-                      ),
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
+                          child: Text(
+                            "Total system idle time\n${_totalIdleTime().timeShort}",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.onSurface,
+                              fontWeight: FontWeight.w600.themed(brightness),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 }
