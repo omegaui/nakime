@@ -49,14 +49,14 @@ class _HomePageState extends State<HomePage> {
     if (LiveSession.state.isEmpty) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
+          padding: const EdgeInsets.symmetric(horizontal: 60),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                Icons.error_rounded,
+                Icons.error_outline_outlined,
                 color: Colors.grey.shade800,
-                size: 64,
+                size: 128,
               ),
               const Text(
                 "Background Service is inactive",
@@ -79,14 +79,14 @@ class _HomePageState extends State<HomePage> {
     if (LiveSession.state.isError) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
+          padding: const EdgeInsets.symmetric(horizontal: 60),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                Icons.warning_rounded,
+                Icons.warning_amber_rounded,
                 color: Colors.grey.shade800,
-                size: 64,
+                size: 128,
               ),
               const Text(
                 "Broken Installation Detected",
@@ -95,7 +95,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const Text(
-                "Please make sure \"NakimeWindowsService\" is installed correctly and is active in the background. This can be confirmed by checking if \"Services\" application has Nakime's Windows Service entry in the services list.",
+                "Please make sure \"NakimeWindowsService\" is installed correctly and is active in the background. This can be confirmed by checking if \"Services\" application has Nakime's Windows Service entry in the services list. For any help please click on Help button provided on top right corner of this window.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,

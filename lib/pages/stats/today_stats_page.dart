@@ -62,7 +62,7 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
           ),
           const Gap(20),
           Text(
-            "Please wait\nreading sessions",
+            "Loading before your eyes can blink",
             textAlign: TextAlign.center,
             style: TextStyle(
               fontWeight: FontWeight.w600.themed(brightness),
@@ -224,7 +224,16 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
                 }
                 final session = _sessions[index];
                 return ListTile(
-                  onTap: () {},
+                  onTap: () {
+                    // does nothing as of v1.0.0
+                    // the sole purpose of adding this empty callback
+                    // is to let the user see on which session entry he is
+                    // currently viewing without location the cursor.
+                  },
+                  splashColor: AppColors.primary.withOpacity(0.1),
+                  focusColor: AppColors.primary.withOpacity(0.2),
+                  hoverColor: AppColors.primary.withOpacity(0.05),
+                  mouseCursor: SystemMouseCursors.basic,
                   title: Text(
                     "Session ${session.id}",
                     style: TextStyle(
