@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:nakime/config/app_colors.dart';
 import 'package:nakime/core/extensions/font_weight_extension.dart';
 import 'package:nakime/core/extensions/live_session_state_extension.dart';
@@ -124,10 +125,7 @@ class _HomePageState extends State<HomePage> {
           const Gap(4),
           TextButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const TodayStatsPage()),
-              );
+              Get.to(() => const TodayStatsPage());
             },
             child: Text(
               "View Stats",
@@ -176,12 +174,7 @@ class _HomePageState extends State<HomePage> {
                     const Gap(10),
                     IconButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const AppInfoPage(),
-                          ),
-                        );
+                        Get.to(() => const AppInfoPage());
                       },
                       icon: Row(
                         mainAxisSize: MainAxisSize.min,

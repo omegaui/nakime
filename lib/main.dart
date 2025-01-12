@@ -52,7 +52,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       theme: _buildTheme(context, brightness),
       home: const HomePage(),
-      defaultTransition: Transition.leftToRight,
+      defaultTransition: Transition.noTransition,
       transitionDuration: Duration.zero,
     );
   }

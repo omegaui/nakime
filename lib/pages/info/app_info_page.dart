@@ -43,6 +43,20 @@ class AppInfoPage extends StatelessWidget {
                     ),
                   ],
                 ),
+                IconButton(
+                  onPressed: () {},
+                  icon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text("Check for updates"),
+                      const Gap(4),
+                      Icon(
+                        Icons.update,
+                        color: AppColors.onSurface.withOpacity(0.7),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
             Expanded(
@@ -69,7 +83,7 @@ class AppInfoPage extends StatelessWidget {
                   Text(
                     "Installed Version: v${appInfo.version}+${appInfo.buildNumber}",
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                     ),
                   ),
                   const Gap(4),
