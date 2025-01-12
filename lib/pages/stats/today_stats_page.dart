@@ -82,7 +82,8 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
       result += idleTime;
     }
     if (_sessions.isNotEmpty) {
-      final idleTime = LiveSession.systemStartupTime.difference(_sessions.last.end);
+      final idleTime =
+          LiveSession.systemStartupTime.difference(_sessions.last.end);
       result += idleTime;
     }
     return result;
@@ -116,6 +117,23 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
                     ),
                   ),
                 ],
+              ),
+              IconButton(
+                onPressed: () {
+
+                },
+                tooltip: "Export your usage data in excel format",
+                icon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text("Export"),
+                    const Gap(4),
+                    Icon(
+                      Icons.download_rounded,
+                      color: AppColors.onSurface,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -378,7 +396,7 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
                         ),
                         const Gap(3),
                         Text(
-                          "See more insights",
+                          "See previous sessions",
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.onSurface,

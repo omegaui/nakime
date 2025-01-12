@@ -3,6 +3,7 @@ import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nakime/config/app_colors.dart';
+import 'package:nakime/core/extensions/font_weight_extension.dart';
 import 'package:nakime/core/sessions/live_session.dart';
 import 'package:nakime/pages/home/home_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -64,6 +65,17 @@ ThemeData _buildTheme(BuildContext context, Brightness brightness) {
   return baseTheme.copyWith(
     colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
     textTheme: GoogleFonts.poppinsTextTheme(baseTheme.textTheme),
+    tooltipTheme: TooltipThemeData(
+        waitDuration: const Duration(milliseconds: 500),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        textStyle: TextStyle(
+          fontSize: 12,
+          color: AppColors.onSurface,
+          fontWeight: FontWeight.w600.themed(brightness),
+        )),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: isDarkMode ? Colors.white : AppColors.surface,
