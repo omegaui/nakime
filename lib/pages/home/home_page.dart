@@ -7,6 +7,7 @@ import 'package:nakime/core/extensions/font_weight_extension.dart';
 import 'package:nakime/core/extensions/live_session_state_extension.dart';
 import 'package:nakime/core/extensions/time_extension.dart';
 import 'package:nakime/core/sessions/live_session.dart';
+import 'package:nakime/pages/info/app_info_page.dart';
 import 'package:nakime/pages/stats/today_stats_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -146,7 +147,61 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: _buildContent(),
+      body: Stack(
+        children: [
+          _buildContent(),
+          Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: SizedBox(
+                height: 40,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () {},
+                      icon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text("Help"),
+                          const Gap(4),
+                          Icon(
+                            Icons.help_outline_rounded,
+                            color: AppColors.onSurface.withOpacity(0.7),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Gap(10),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AppInfoPage(),
+                          ),
+                        );
+                      },
+                      icon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text("App Info"),
+                          const Gap(4),
+                          Icon(
+                            Icons.info_outline_rounded,
+                            color: AppColors.onSurface.withOpacity(0.7),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

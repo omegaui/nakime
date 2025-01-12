@@ -20,6 +20,7 @@ dependencies:
   fl_chart: ^0.69.2
   timeago: ^3.7.0
   intl: ^0.19.0
+  package_info_plus: ^8.1.2
 
 dev_dependencies:
   flutter_test:

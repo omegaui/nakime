@@ -5,11 +5,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nakime/config/app_colors.dart';
 import 'package:nakime/core/sessions/live_session.dart';
 import 'package:nakime/pages/home/home_page.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
+late PackageInfo appInfo;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Window.initialize();
   await LiveSession.init();
+  appInfo = await PackageInfo.fromPlatform();
   runApp(const MyApp());
 }
 
