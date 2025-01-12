@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:lottie/lottie.dart';
+import 'package:nakime/config/app_animations.dart';
 import 'package:nakime/config/app_colors.dart';
 import 'package:nakime/config/app_icons.dart';
 import 'package:nakime/core/extensions/font_weight_extension.dart';
@@ -47,27 +49,30 @@ class AppInfoPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox.square(
+                  SizedBox.square(
                     dimension: 128,
-                    child: Image(
-                      image: AppIcons.nakime,
+                    child: Lottie.asset(
+                      AppAnimations.nakime,
+                      repeat: true,
+                      reverse: true,
+                      filterQuality: FilterQuality.high,
                     ),
                   ),
-                  Gap(10),
-                  Text(
+                  const Gap(10),
+                  const Text(
                     "Nakime",
                     style: TextStyle(
                       fontSize: 24,
                     ),
                   ),
-                  Gap(4),
+                  const Gap(4),
                   Text(
                     "Installed Version: v${appInfo.version}+${appInfo.buildNumber}",
                     style: const TextStyle(
                       fontSize: 16,
                     ),
                   ),
-                  Gap(4),
+                  const Gap(4),
                   const Text(
                     "Licensed under Apache License 2.0",
                     style: TextStyle(
@@ -76,9 +81,7 @@ class AppInfoPage extends StatelessWidget {
                   ),
                   const Gap(4),
                   TextButton(
-                    onPressed: () {
-
-                    },
+                    onPressed: () {},
                     child: Text(
                       "See Source Code",
                       style: TextStyle(
@@ -95,5 +98,17 @@ class AppInfoPage extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class Clipp extends CustomClipper<Rect> {
+  @override
+  Rect getClip(Size size) {
+    return Rect.fromLTRB(0, 90, size.width, size.height);
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Rect> oldClipper) {
+    return true;
   }
 }
