@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:intl/intl.dart';
 import 'package:nakime/config/app_colors.dart';
 import 'package:nakime/core/extensions/font_weight_extension.dart';
 import 'package:nakime/core/extensions/time_extension.dart';
@@ -79,6 +80,10 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
       final idleTime = session.start.difference(previous.end);
       result += idleTime;
     }
+    if (_sessions.isNotEmpty) {
+      final idleTime = LiveSession.systemStartupTime.difference(_sessions.last.start);
+      result += idleTime;
+    }
     return result;
   }
 
@@ -103,9 +108,9 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
                     ),
                   ),
                   const Gap(10),
-                  const Text(
-                    "Session Stats",
-                    style: TextStyle(
+                  Text(
+                    "Session Stats (${DateFormat("EEE, MMM d").format(LiveSession.systemStartupTime)})",
+                    style: const TextStyle(
                       fontSize: 22,
                     ),
                   ),
