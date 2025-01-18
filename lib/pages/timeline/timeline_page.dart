@@ -187,7 +187,7 @@ class _TimelinePageState extends State<TimelinePage> {
                                   onPressed: () {},
                                   style: TextButton.styleFrom(
                                     backgroundColor:
-                                        Colors.pink.withOpacity(0.21),
+                                        Colors.grey.withOpacity(0.21),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -199,12 +199,12 @@ class _TimelinePageState extends State<TimelinePage> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Icon(
-                                          Icons.play_arrow_outlined,
+                                          Icons.done,
                                           color: AppColors.onSurface,
                                         ),
                                         const Gap(4),
                                         Text(
-                                          "Load Sessions",
+                                          "Apply",
                                           style: TextStyle(
                                             color: AppColors.onSurface,
                                             fontWeight: FontWeight.w600,
@@ -225,7 +225,9 @@ class _TimelinePageState extends State<TimelinePage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Theme(
-                              data: brightness == Brightness.light ? ThemeData.light() : ThemeData.dark(),
+                              data: brightness == Brightness.light
+                                  ? ThemeData.light()
+                                  : ThemeData.dark(),
                               child: CalendarDatePicker(
                                 initialDate: _pickerMode == "start-date"
                                     ? (_startTime ?? _now)
