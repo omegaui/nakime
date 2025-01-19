@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -10,6 +11,7 @@ import 'package:nakime/core/extensions/font_weight_extension.dart';
 import 'package:nakime/core/extensions/time_extension.dart';
 import 'package:nakime/core/sessions/live_session.dart';
 import 'package:nakime/core/sessions/session_reader.dart';
+import 'package:nakime/pages/info/session_tag_info_page.dart';
 import 'package:nakime/pages/timeline/timeline_page.dart';
 
 class TodayStatsPage extends StatefulWidget {
@@ -121,9 +123,7 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
                 ],
               ),
               IconButton(
-                onPressed: () {
-
-                },
+                onPressed: () {},
                 tooltip: "Export your usage data in excel format",
                 icon: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -232,6 +232,9 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
                     // is to let the user see on which session entry he is
                     // currently viewing without location the cursor.
                   },
+                  tileColor: session.hasTag
+                      ? AppColors.secondary.withOpacity(0.05)
+                      : null,
                   splashColor: AppColors.primary.withOpacity(0.1),
                   focusColor: AppColors.primary.withOpacity(0.2),
                   hoverColor: AppColors.primary.withOpacity(0.05),
@@ -272,7 +275,7 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          session.time.timeShort,
+                          "${session.hasTag ? "~" : ""}${session.time.timeShort}",
                           textAlign: TextAlign.right,
                           style: TextStyle(
                             fontSize: 12,
@@ -280,6 +283,41 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
                             fontWeight: FontWeight.w600.themed(brightness),
                           ),
                         ),
+                        if (session.hasTag) ...[
+                          MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              onTap: () {
+                                Get.to(() {
+                                  return SessionTagInfoPage(session: session);
+                                });
+                              },
+                              child: Tooltip(
+                                message: "Click to know more",
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      session.tagDisplayName,
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: AppColors.onSurface,
+                                        fontWeight:
+                                            FontWeight.w600.themed(brightness),
+                                      ),
+                                    ),
+                                    const Gap(3),
+                                    Icon(
+                                      Icons.info_outlined,
+                                      size: 14,
+                                      color: AppColors.onSurface,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ]
                       ],
                     ),
                   ),
@@ -307,6 +345,7 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
             id: _sessions.length + 1,
             start: LiveSession.systemStartupTime,
             end: DateTime.now(),
+            tag: "",
           );
 
           var totalUptime = "0 s";

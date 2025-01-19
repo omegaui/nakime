@@ -3,19 +3,27 @@ import 'dart:io';
 
 import 'package:intl/intl.dart';
 import 'package:nakime/core/constants/service_constants.dart';
+import 'package:nakime/core/constants/session_tag_constants.dart';
 import 'package:nakime/core/extensions/day_extension.dart';
 import 'package:nakime/core/extensions/number_extension.dart';
+import 'package:nakime/core/extensions/time_extension.dart';
 
 class Session {
   final int id;
   final DateTime start;
   final DateTime end;
+  final String tag;
 
   Session({
     required this.id,
     required this.start,
     required this.end,
+    required this.tag,
   });
+
+  bool get hasTag => tag.isNotEmpty;
+
+  String get tagDisplayName => SessionTagConstants.getTagDisplayName(tag);
 
   Duration get time => end.difference(start);
 
@@ -57,6 +65,7 @@ class Session {
       id: doc["Id"],
       start: start,
       end: end,
+      tag: doc['Tag'] ?? "",
     );
   }
 }

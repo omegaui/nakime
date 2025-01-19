@@ -1,12 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:lottie/lottie.dart';
 import 'package:nakime/config/app_animations.dart';
 import 'package:nakime/config/app_colors.dart';
-import 'package:nakime/config/app_icons.dart';
-import 'package:nakime/core/extensions/font_weight_extension.dart';
 import 'package:nakime/main.dart';
 
 class AppInfoPage extends StatelessWidget {
