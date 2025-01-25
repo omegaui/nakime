@@ -57,4 +57,8 @@ extension TimeExtension on Duration {
     final DateFormat formatter = DateFormat('hh:mm a');
     return formatter.format(dateTime);
   }
+
+  double get asHours {
+    return inSeconds / 3600;
+  }
 }
