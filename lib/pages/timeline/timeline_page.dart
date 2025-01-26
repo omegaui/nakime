@@ -167,19 +167,7 @@ class _TimelinePageState extends State<TimelinePage> {
                                         showTitles: true,
                                         reservedSize: 20,
                                         minIncluded: true,
-                                        interval:
-                                            ((result!.actualStartDaySearchStatus
-                                                                .actualDay.day
-                                                                .toDouble() -
-                                                            result!
-                                                                .actualEndDaySearchStatus
-                                                                .actualDay
-                                                                .day
-                                                                .toDouble())
-                                                        .abs() /
-                                                    7)
-                                                .ceilToDouble()
-                                                .roundToDouble(),
+                                        interval: result!.dayIntervalOnGraph,
                                         getTitlesWidget: (
                                           double value,
                                           TitleMeta meta,
@@ -195,7 +183,7 @@ class _TimelinePageState extends State<TimelinePage> {
                                     leftTitles: AxisTitles(
                                       sideTitles: SideTitles(
                                         showTitles: true,
-                                        interval: 1,
+                                        interval: result!.timeIntervalOnGraph,
                                         minIncluded: false,
                                         getTitlesWidget: (
                                           double value,
@@ -284,7 +272,7 @@ class _TimelinePageState extends State<TimelinePage> {
                             if (!result!
                                 .actualStartDaySearchStatus.accurate) ...[
                               Text(
-                                "You don't have an individual session on selected start day \"${DateFormat("MMM d, yyyy").format(_startTime!)}\"${!_startTime!.isSameDay(result!.actualStartDaySearchStatus.actualDay) ? ", showing sessions from back up-to \"${DateFormat("MMM d, yyyy").format(result!.actualStartDaySearchStatus.actualDay)}\" instead." : "."}",
+                                "You don't have an individual session on selected start day \"${DateFormat("MMM d, yyyy").format(_startTime!)}\"${!_startTime!.isSameDay(result!.actualStartDaySearchStatus.actualDay) ? ", tried to load sessions from back up-to \"${DateFormat("MMM d, yyyy").format(result!.actualStartDaySearchStatus.actualDay)}\" instead." : "."}",
                               ),
                             ],
                           ],

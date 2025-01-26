@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 import 'package:nakime/core/constants/session_tag_constants.dart';
 import 'package:nakime/core/extensions/day_extension.dart';
 import 'package:nakime/core/extensions/number_extension.dart';
+import 'package:nakime/core/extensions/time_extension.dart';
 
 enum TimeDirection {
   past,
@@ -20,6 +21,8 @@ class TimelineReadResult {
   final Map<DateTime, SessionGroupStats> data;
   final ActualTimeSearchStatus actualStartDaySearchStatus;
   final ActualTimeSearchStatus actualEndDaySearchStatus;
+  late double dayIntervalOnGraph;
+  late double timeIntervalOnGraph;
   late Duration maxTime;
 
   SessionGroupStats getStatAt(int day) {
@@ -39,6 +42,9 @@ class TimelineReadResult {
           maxTime = stats.totalTime;
         }
       }
+      dayIntervalOnGraph = (timeline.length / 7).ceilToDouble().roundToDouble();
+      timeIntervalOnGraph =
+          (maxTime.asHours / timeline.length).ceilToDouble().roundToDouble();
     }
   }
 }
@@ -100,7 +106,7 @@ class Session {
     final end = DateTime(
       endDay[2].asInt(),
       endDay[1].asInt(),
-      startDay[0].asInt(),
+      endDay[0].asInt(),
       endTime[0].asInt(),
       endTime[1].asInt(),
       endTime[2].asInt(),
