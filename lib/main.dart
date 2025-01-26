@@ -65,6 +65,11 @@ ThemeData _buildTheme(BuildContext context, Brightness brightness) {
   return baseTheme.copyWith(
     colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
     textTheme: GoogleFonts.poppinsTextTheme(baseTheme.textTheme),
+    expansionTileTheme: ExpansionTileThemeData(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+    ),
     tooltipTheme: TooltipThemeData(
       waitDuration: const Duration(milliseconds: 500),
       decoration: BoxDecoration(

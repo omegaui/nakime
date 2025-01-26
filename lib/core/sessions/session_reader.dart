@@ -45,6 +45,9 @@ class TimelineReadResult {
       dayIntervalOnGraph = (timeline.length / 7).ceilToDouble().roundToDouble();
       timeIntervalOnGraph =
           (maxTime.asHours / timeline.length).ceilToDouble().roundToDouble();
+    } else {
+      dayIntervalOnGraph = timeIntervalOnGraph = 1;
+      maxTime = Duration.zero;
     }
   }
 }
@@ -172,7 +175,7 @@ class SessionReader {
     requestedStart = actualStartDaySearchStatus.actualDay;
     requestedEnd = actualEndDaySearchStatus.actualDay;
     for (var date = requestedStart;
-        date.isBefore(requestedEnd);
+        date.isBefore(requestedEnd) || date.isSameDay(requestedEnd);
         date = date.add(const Duration(days: 1))) {
       if (await date.doesSessionFileExists()) {
         timeline.add(date);

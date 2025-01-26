@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:nakime/config/app_colors.dart';
 import 'package:nakime/core/extensions/day_extension.dart';
@@ -10,6 +11,7 @@ import 'package:nakime/core/extensions/font_weight_extension.dart';
 import 'package:nakime/core/extensions/time_extension.dart';
 import 'package:nakime/core/extras.dart';
 import 'package:nakime/core/sessions/session_reader.dart';
+import 'package:nakime/pages/info/session_tag_info_page.dart';
 
 class TimelinePage extends StatefulWidget {
   const TimelinePage({super.key});
@@ -121,7 +123,7 @@ class _TimelinePageState extends State<TimelinePage> {
                       ],
                     ),
                   ),
-                  if (result != null) ...[
+                  if (result != null && result!.data.isNotEmpty) ...[
                     Expanded(
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.symmetric(horizontal: 40.0),
@@ -268,13 +270,200 @@ class _TimelinePageState extends State<TimelinePage> {
                                 ),
                               ),
                             ),
+                            const Gap(10),
+                            const Align(
+                              child: Text(
+                                "System Uptime Graph",
+                                style: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ),
                             const Gap(20),
                             if (!result!
                                 .actualStartDaySearchStatus.accurate) ...[
                               Text(
-                                "You don't have an individual session on selected start day \"${DateFormat("MMM d, yyyy").format(_startTime!)}\"${!_startTime!.isSameDay(result!.actualStartDaySearchStatus.actualDay) ? ", tried to load sessions from back up-to \"${DateFormat("MMM d, yyyy").format(result!.actualStartDaySearchStatus.actualDay)}\" instead." : "."}",
+                                "Note: You don't have an individual session on selected start day \"${DateFormat("MMM d, yyyy").format(_startTime!)}\"${!_startTime!.isSameDay(result!.actualStartDaySearchStatus.actualDay) ? ", tried to load sessions from back up-to \"${DateFormat("MMM d, yyyy").format(result!.actualStartDaySearchStatus.actualDay)}\" instead." : "."}",
                               ),
                             ],
+                            if (!result!.actualEndDaySearchStatus.accurate) ...[
+                              Text(
+                                "Note: You don't have an individual session on selected end day \"${DateFormat("MMM d, yyyy").format(_endTime!)}\"${!_endTime!.isSameDay(result!.actualEndDaySearchStatus.actualDay) ? ", tried to load sessions from back up-to \"${DateFormat("MMM d, yyyy").format(result!.actualEndDaySearchStatus.actualDay)}\" instead." : "."}",
+                              ),
+                            ],
+                            const Text(
+                              "Session Summary",
+                              style: TextStyle(
+                                fontSize: 22,
+                              ),
+                            ),
+                            const Gap(10),
+                            SizedBox(
+                              height: 900,
+                              child: ListView.builder(
+                                itemCount: result!.data.length,
+                                itemBuilder: (context, index) {
+                                  final day =
+                                      result!.data.keys.elementAt(index);
+                                  final stats = result!.data[day]!;
+                                  return ExpansionTile(
+                                    initiallyExpanded: index == 0,
+                                    title: Text(
+                                      DateFormat("MMM d, ''yy (EEE)")
+                                          .format(day),
+                                      style: TextStyle(
+                                        color: AppColors.onSurface,
+                                      ),
+                                    ),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          stats.totalTime.timeShort,
+                                          style: TextStyle(
+                                            color: AppColors.onSurface,
+                                          ),
+                                        ),
+                                        const Gap(5),
+                                        const Icon(
+                                          Icons.keyboard_arrow_down,
+                                        ),
+                                      ],
+                                    ),
+                                    children: [
+                                      ...stats.sessions.map(
+                                        (session) {
+                                          return ListTile(
+                                            onTap: () {
+                                              // does nothing as of v1.0.0
+                                              // the sole purpose of adding this empty callback
+                                              // is to let the user see on which session entry he is
+                                              // currently viewing without location the cursor.
+                                            },
+                                            tileColor: session.hasTag
+                                                ? AppColors.secondary
+                                                    .withOpacity(0.05)
+                                                : null,
+                                            splashColor: AppColors.primary
+                                                .withOpacity(0.1),
+                                            focusColor: AppColors.primary
+                                                .withOpacity(0.2),
+                                            hoverColor: AppColors.primary
+                                                .withOpacity(0.05),
+                                            mouseCursor:
+                                                SystemMouseCursors.basic,
+                                            title: Text(
+                                              "Session ${session.id}",
+                                              style: TextStyle(
+                                                color: AppColors.onSurface,
+                                              ),
+                                            ),
+                                            subtitle: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  session.dayRange,
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: AppColors.onSurface,
+                                                    fontWeight: FontWeight.w600
+                                                        .themed(brightness),
+                                                  ),
+                                                ),
+                                                Text(
+                                                  session.timeRange,
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: AppColors.onSurface,
+                                                    fontWeight: FontWeight.w600
+                                                        .themed(brightness),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            trailing: SizedBox(
+                                              width: 140,
+                                              height: 50,
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    "${session.hasTag ? "~" : ""}${session.time.timeShort}",
+                                                    textAlign: TextAlign.right,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color:
+                                                          AppColors.onSurface,
+                                                      fontWeight: FontWeight
+                                                          .w600
+                                                          .themed(brightness),
+                                                    ),
+                                                  ),
+                                                  if (session.hasTag) ...[
+                                                    MouseRegion(
+                                                      cursor: SystemMouseCursors
+                                                          .click,
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          Get.to(() {
+                                                            return SessionTagInfoPage(
+                                                              session: session,
+                                                            );
+                                                          });
+                                                        },
+                                                        child: Tooltip(
+                                                          message:
+                                                              "Click to know more",
+                                                          child: Row(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              Text(
+                                                                session
+                                                                    .tagDisplayName,
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 10,
+                                                                  color: AppColors
+                                                                      .onSurface,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600
+                                                                          .themed(
+                                                                              brightness),
+                                                                ),
+                                                              ),
+                                                              const Gap(3),
+                                                              Icon(
+                                                                Icons
+                                                                    .info_outlined,
+                                                                size: 14,
+                                                                color: AppColors
+                                                                    .onSurface,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ]
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -390,6 +579,7 @@ class _TimelinePageState extends State<TimelinePage> {
                                     setState(() {
                                       result = null;
                                       _searchInProgress = true;
+                                      _hideControls = true;
                                     });
                                     try {
                                       result = await SessionReader.readTimeline(
