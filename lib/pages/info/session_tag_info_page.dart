@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:get/get_common/get_reset.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:nakime/config/app_colors.dart';
 import 'package:nakime/core/constants/session_tag_constants.dart';
