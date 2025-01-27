@@ -11,6 +11,47 @@ import 'package:nakime/core/extras.dart';
 import 'package:nakime/core/sessions/session_reader.dart';
 import 'package:nakime/pages/info/session_tag_info_page.dart';
 
+enum _ChartType {
+  line,
+  smooth,
+  step,
+}
+
+extension _ChartTypeExtension on _ChartType {
+  String get displayName {
+    switch (this) {
+      case _ChartType.line:
+        return "Line Chart";
+      case _ChartType.smooth:
+        return "Smooth Chart";
+      case _ChartType.step:
+        return "Step Chart";
+    }
+  }
+
+  _ChartType get next {
+    switch (this) {
+      case _ChartType.line:
+        return _ChartType.smooth;
+      case _ChartType.smooth:
+        return _ChartType.step;
+      case _ChartType.step:
+        return _ChartType.line;
+    }
+  }
+
+  IconData get iconData {
+    switch (this) {
+      case _ChartType.line:
+        return Icons.line_axis;
+      case _ChartType.smooth:
+        return Icons.bar_chart;
+      case _ChartType.step:
+        return Icons.show_chart;
+    }
+  }
+}
+
 class TimelinePage extends StatefulWidget {
   const TimelinePage({super.key});
 
@@ -28,7 +69,33 @@ class _TimelinePageState extends State<TimelinePage> {
 
   TimelineReadResult? result;
   bool _searchInProgress = false;
-  bool _showStepLineChart = true;
+
+  _ChartType _chartType = _ChartType.line;
+
+  final _scrollController = ScrollController();
+  bool _showGoToTopButton = false;
+
+  @override
+  void initState() {
+    _scrollController.addListener(
+      () {
+        if (_scrollController.offset > 100) {
+          if (!_showGoToTopButton) {
+            setState(() {
+              _showGoToTopButton = true;
+            });
+          }
+        } else {
+          if (_showGoToTopButton) {
+            setState(() {
+              _showGoToTopButton = false;
+            });
+          }
+        }
+      },
+    );
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,24 +142,20 @@ class _TimelinePageState extends State<TimelinePage> {
                               IconButton(
                                 onPressed: () {
                                   setState(() {
-                                    _showStepLineChart = !_showStepLineChart;
+                                    _chartType = _chartType.next;
                                   });
                                 },
                                 tooltip:
-                                    "Export your usage data in excel format",
+                                    "Click to change to ${_chartType.next.displayName}",
                                 icon: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      _showStepLineChart
-                                          ? "Step Chart"
-                                          : "Smooth Chart",
+                                      _chartType.displayName,
                                     ),
                                     const Gap(4),
                                     Icon(
-                                      _showStepLineChart
-                                          ? Icons.bar_chart
-                                          : Icons.show_chart,
+                                      _chartType.iconData,
                                       color: AppColors.onSurface,
                                     ),
                                   ],
@@ -124,6 +187,7 @@ class _TimelinePageState extends State<TimelinePage> {
                   if (result != null && result!.data.isNotEmpty) ...[
                     Expanded(
                       child: SingleChildScrollView(
+                        controller: _scrollController,
                         padding: const EdgeInsets.symmetric(horizontal: 40.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,8 +281,9 @@ class _TimelinePageState extends State<TimelinePage> {
                                           e.value.totalTime.asHours,
                                         );
                                       }).toList(),
-                                      isCurved: true,
-                                      isStepLineChart: _showStepLineChart,
+                                      isCurved: _chartType != _ChartType.line,
+                                      isStepLineChart:
+                                          _chartType == _ChartType.step,
                                       gradient: LinearGradient(
                                         colors: [
                                           AppColors.primary,
@@ -301,8 +366,8 @@ class _TimelinePageState extends State<TimelinePage> {
                               child: ListView.builder(
                                 itemCount: result!.data.length,
                                 itemBuilder: (context, index) {
-                                  final day =
-                                      result!.data.keys.elementAt(index);
+                                  final day = result!.data.keys.elementAt(
+                                      result!.data.length - index - 1);
                                   final stats = result!.data[day]!;
                                   return ExpansionTile(
                                     initiallyExpanded: index == 0,
@@ -703,6 +768,30 @@ class _TimelinePageState extends State<TimelinePage> {
                 ),
               ),
             ],
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: AnimatedSize(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.ease,
+                child: !_showGoToTopButton ||
+                        result == null ||
+                        result!.data.isEmpty
+                    ? const SizedBox()
+                    : Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: IconButton.filled(
+                          onPressed: () {
+                            _scrollController.animateTo(
+                              0,
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.ease,
+                            );
+                          },
+                          icon: const Icon(Icons.arrow_upward),
+                        ),
+                      ),
+              ),
+            ),
           ],
         ),
       ),
