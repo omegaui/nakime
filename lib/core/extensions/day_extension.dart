@@ -13,8 +13,16 @@ extension DayExtension on DateTime {
     return "$day-$month-$year.json";
   }
 
+  String toExportFilename() {
+    return "$day-$month-$year-$millisecondsSinceEpoch.xlsx";
+  }
+
   String toSessionFilepath() {
     return "${ServiceConstants.dataDir}\\${toSessionFilename()}";
+  }
+
+  String toExportFilepath() {
+    return "${ServiceConstants.exportDir}\\${toExportFilename()}";
   }
 
   Future<bool> doesSessionFileExists() async {

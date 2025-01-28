@@ -8,8 +8,10 @@ import 'package:nakime/core/extensions/day_extension.dart';
 import 'package:nakime/core/extensions/font_weight_extension.dart';
 import 'package:nakime/core/extensions/time_extension.dart';
 import 'package:nakime/core/extras.dart';
+import 'package:nakime/core/sessions/session_export_utils.dart';
 import 'package:nakime/core/sessions/session_reader.dart';
 import 'package:nakime/pages/info/session_tag_info_page.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 enum _ChartType {
   line,
@@ -102,7 +104,7 @@ class _TimelinePageState extends State<TimelinePage> {
   @override
   Widget build(BuildContext context) {
     final brightness = MediaQuery.platformBrightnessOf(context);
-    final days = result!.data.keys.toList();
+    final days = result == null ? [] : result!.data.keys.toList();
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Padding(
@@ -166,7 +168,16 @@ class _TimelinePageState extends State<TimelinePage> {
                               ),
                               const Gap(10),
                               IconButton(
-                                onPressed: () {},
+                                onPressed: () async {
+                                  final exportPath =
+                                      await SessionExportUtils.exportExcel(
+                                    result!.data.values.fold(
+                                      <Session>[],
+                                      (a, b) => a + b.sessions,
+                                    ),
+                                  );
+                                  launchUrlString("file://$exportPath");
+                                },
                                 tooltip:
                                     "Export your usage data in excel format",
                                 icon: Row(

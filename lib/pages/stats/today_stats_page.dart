@@ -9,9 +9,11 @@ import 'package:nakime/core/extensions/day_extension.dart';
 import 'package:nakime/core/extensions/font_weight_extension.dart';
 import 'package:nakime/core/extensions/time_extension.dart';
 import 'package:nakime/core/sessions/live_session.dart';
+import 'package:nakime/core/sessions/session_export_utils.dart';
 import 'package:nakime/core/sessions/session_reader.dart';
 import 'package:nakime/pages/info/session_tag_info_page.dart';
 import 'package:nakime/pages/timeline/timeline_page.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class TodayStatsPage extends StatefulWidget {
   const TodayStatsPage({super.key});
@@ -122,7 +124,12 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
                 ],
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () async {
+                  final exportPath = await SessionExportUtils.exportExcel(
+                    _sessions,
+                  );
+                  launchUrlString("file://$exportPath");
+                },
                 tooltip: "Export your usage data in excel format",
                 icon: Row(
                   mainAxisSize: MainAxisSize.min,
