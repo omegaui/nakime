@@ -74,6 +74,8 @@ class _TimelinePageState extends State<TimelinePage> {
 
   final _scrollController = ScrollController();
   bool _showGoToTopButton = false;
+  List<FlSpot> _spots = [];
+  bool _animateSpots = true;
 
   @override
   void initState() {
@@ -100,6 +102,7 @@ class _TimelinePageState extends State<TimelinePage> {
   @override
   Widget build(BuildContext context) {
     final brightness = MediaQuery.platformBrightnessOf(context);
+    final days = result!.data.keys.toList();
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Padding(
@@ -193,146 +196,169 @@ class _TimelinePageState extends State<TimelinePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Gap(40),
-                            SizedBox(
-                              height: 380,
-                              child: LineChart(
-                                LineChartData(
-                                  gridData: FlGridData(
-                                    show: true,
-                                    drawVerticalLine: true,
-                                    drawHorizontalLine: true,
-                                    horizontalInterval: 1,
-                                    verticalInterval: 1,
-                                    getDrawingHorizontalLine: (value) {
-                                      return FlLine(
-                                        color: AppColors.onSurface
-                                            .withOpacity(0.05),
-                                        strokeWidth: 0.6,
+                            StatefulBuilder(builder: (context, setChartState) {
+                              if (_animateSpots) {
+                                _spots = result!.data.entries.map((e) {
+                                  return FlSpot(
+                                    e.key.day.toDouble(),
+                                    0,
+                                  );
+                                }).toList();
+                                _animateSpots = false;
+                                Future.delayed(
+                                  const Duration(milliseconds: 500),
+                                  () {
+                                    _spots = result!.data.entries.map((e) {
+                                      return FlSpot(
+                                        e.key.day.toDouble(),
+                                        e.value.totalTime.asHours,
                                       );
-                                    },
-                                    getDrawingVerticalLine: (value) {
-                                      return FlLine(
-                                        color: AppColors.onSurface
-                                            .withOpacity(0.05),
-                                        strokeWidth: 1,
-                                      );
-                                    },
-                                  ),
-                                  titlesData: FlTitlesData(
-                                    show: true,
-                                    rightTitles: const AxisTitles(
-                                      sideTitles: SideTitles(showTitles: false),
-                                    ),
-                                    topTitles: const AxisTitles(
-                                      sideTitles: SideTitles(showTitles: false),
-                                    ),
-                                    bottomTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
-                                        reservedSize: 20,
-                                        minIncluded: true,
-                                        interval: result!.dayIntervalOnGraph,
-                                        getTitlesWidget: (
-                                          double value,
-                                          TitleMeta meta,
-                                        ) {
-                                          return Text(
-                                            getNaturalLanguageNameForDay(
-                                                value.round()),
-                                            textAlign: TextAlign.left,
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    leftTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
-                                        interval: result!.timeIntervalOnGraph,
-                                        minIncluded: false,
-                                        getTitlesWidget: (
-                                          double value,
-                                          TitleMeta meta,
-                                        ) {
-                                          return Text(
-                                            "${value.round()} Hr${value == 1 ? "" : "s"}",
-                                            textAlign: TextAlign.left,
-                                          );
-                                        },
-                                        reservedSize: 42,
-                                      ),
-                                    ),
-                                  ),
-                                  borderData: FlBorderData(
-                                    show: false,
-                                  ),
-                                  minX: result!
-                                      .actualStartDaySearchStatus.actualDay.day
-                                      .toDouble(),
-                                  maxX: result!
-                                      .actualEndDaySearchStatus.actualDay.day
-                                      .toDouble(),
-                                  minY: 0,
-                                  maxY: result!.maxTime.inHours.toDouble() + 1,
-                                  lineBarsData: [
-                                    LineChartBarData(
-                                      spots: result!.data.entries.map((e) {
-                                        return FlSpot(
-                                          e.key.day.toDouble(),
-                                          e.value.totalTime.asHours,
+                                    }).toList();
+                                    setChartState(() {});
+                                  },
+                                );
+                              }
+                              return SizedBox(
+                                height: 380,
+                                child: LineChart(
+                                  LineChartData(
+                                    gridData: FlGridData(
+                                      show: true,
+                                      drawVerticalLine: true,
+                                      drawHorizontalLine: true,
+                                      horizontalInterval: 1,
+                                      verticalInterval: 1,
+                                      getDrawingHorizontalLine: (value) {
+                                        return FlLine(
+                                          color: AppColors.onSurface
+                                              .withOpacity(0.05),
+                                          strokeWidth: 0.6,
                                         );
-                                      }).toList(),
-                                      isCurved: _chartType != _ChartType.line,
-                                      isStepLineChart:
-                                          _chartType == _ChartType.step,
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          AppColors.primary,
-                                          AppColors.onSurface.withOpacity(0.2),
-                                        ],
+                                      },
+                                      getDrawingVerticalLine: (value) {
+                                        return FlLine(
+                                          color: AppColors.onSurface
+                                              .withOpacity(0.05),
+                                          strokeWidth: 1,
+                                        );
+                                      },
+                                    ),
+                                    titlesData: FlTitlesData(
+                                      show: true,
+                                      rightTitles: const AxisTitles(
+                                        sideTitles:
+                                            SideTitles(showTitles: false),
                                       ),
-                                      barWidth: 5,
-                                      isStrokeCapRound: true,
-                                      dotData: const FlDotData(
-                                        show: false,
+                                      topTitles: const AxisTitles(
+                                        sideTitles:
+                                            SideTitles(showTitles: false),
                                       ),
-                                      belowBarData: BarAreaData(
-                                        show: true,
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            AppColors.primary,
-                                            AppColors.onSurface
-                                                .withOpacity(0.2),
-                                          ]
-                                              .map((color) =>
-                                                  color.withOpacity(0.1))
-                                              .toList(),
+                                      bottomTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          reservedSize: 20,
+                                          minIncluded: true,
+                                          interval: result!.dayIntervalOnGraph,
+                                          getTitlesWidget: (
+                                            double value,
+                                            TitleMeta meta,
+                                          ) {
+                                            return Text(
+                                              getNaturalLanguageNameForDay(
+                                                  value.round()),
+                                              textAlign: TextAlign.left,
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      leftTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          interval: result!.timeIntervalOnGraph,
+                                          minIncluded: false,
+                                          getTitlesWidget: (
+                                            double value,
+                                            TitleMeta meta,
+                                          ) {
+                                            return Text(
+                                              "${value.round()} Hr${value == 1 ? "" : "s"}",
+                                              textAlign: TextAlign.left,
+                                            );
+                                          },
+                                          reservedSize: 42,
                                         ),
                                       ),
                                     ),
-                                  ],
-                                  lineTouchData: LineTouchData(
-                                    touchTooltipData: LineTouchTooltipData(
-                                      getTooltipItems: (touchedSpots) {
-                                        return touchedSpots.map((e) {
-                                          return LineTooltipItem(
-                                            result!
-                                                .getStatAt(e.x.toInt())
-                                                .totalTime
-                                                .timeShort,
-                                            const TextStyle(
-                                              fontSize: 12,
-                                            ),
-                                          );
-                                        }).toList();
-                                      },
-                                      getTooltipColor: (touchedSpot) {
-                                        return AppColors.surface;
-                                      },
+                                    borderData: FlBorderData(
+                                      show: false,
+                                    ),
+                                    minX: result!.actualStartDaySearchStatus
+                                        .actualDay.day
+                                        .toDouble(),
+                                    maxX: result!
+                                        .actualEndDaySearchStatus.actualDay.day
+                                        .toDouble(),
+                                    minY: 0,
+                                    maxY:
+                                        result!.maxTime.inHours.toDouble() + 1,
+                                    lineBarsData: [
+                                      LineChartBarData(
+                                        spots: _spots,
+                                        isCurved: _chartType != _ChartType.line,
+                                        isStepLineChart:
+                                            _chartType == _ChartType.step,
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            AppColors.onSurface
+                                                .withOpacity(0.2),
+                                            AppColors.primary,
+                                          ],
+                                        ),
+                                        barWidth: 5,
+                                        isStrokeCapRound: true,
+                                        dotData: const FlDotData(
+                                          show: false,
+                                        ),
+                                        belowBarData: BarAreaData(
+                                          show: true,
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              AppColors.onSurface
+                                                  .withOpacity(0.2),
+                                              AppColors.primary,
+                                            ]
+                                                .map((color) =>
+                                                    color.withOpacity(0.1))
+                                                .toList(),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    lineTouchData: LineTouchData(
+                                      touchTooltipData: LineTouchTooltipData(
+                                        getTooltipItems: (touchedSpots) {
+                                          return touchedSpots.map((e) {
+                                            return LineTooltipItem(
+                                              result!
+                                                  .getStatAt(e.x.toInt())
+                                                  .totalTime
+                                                  .timeShort,
+                                              const TextStyle(
+                                                fontSize: 12,
+                                              ),
+                                            );
+                                          }).toList();
+                                        },
+                                        getTooltipColor: (touchedSpot) {
+                                          return AppColors.surface;
+                                        },
+                                      ),
                                     ),
                                   ),
+                                  duration: const Duration(milliseconds: 500),
                                 ),
-                              ),
-                            ),
+                              );
+                            }),
                             const Gap(10),
                             const Align(
                               child: Text(
@@ -361,172 +387,171 @@ class _TimelinePageState extends State<TimelinePage> {
                               ),
                             ),
                             const Gap(10),
-                            SizedBox(
-                              height: 900,
-                              child: ListView.builder(
-                                itemCount: result!.data.length,
-                                itemBuilder: (context, index) {
-                                  final day = result!.data.keys.elementAt(
-                                      result!.data.length - index - 1);
-                                  final stats = result!.data[day]!;
-                                  return ExpansionTile(
-                                    initiallyExpanded: index == 0,
-                                    title: Text(
+                            ...days.map((e) {
+                              final index = days.indexOf(e);
+                              final day = days.elementAt(
+                                result!.data.length - index - 1,
+                              );
+                              final stats = result!.data[day]!;
+                              return ExpansionTile(
+                                initiallyExpanded: index == 0,
+                                title: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.view_day_outlined,
+                                      color: AppColors.onSurface,
+                                    ),
+                                    const Gap(10),
+                                    Text(
                                       DateFormat("MMM d, ''yy (EEE)")
                                           .format(day),
                                       style: TextStyle(
                                         color: AppColors.onSurface,
                                       ),
                                     ),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          stats.totalTime.timeShort,
+                                  ],
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      stats.totalTime.timeShort,
+                                      style: TextStyle(
+                                        color: AppColors.onSurface,
+                                      ),
+                                    ),
+                                    const Gap(5),
+                                    const Icon(
+                                      Icons.keyboard_arrow_down,
+                                    ),
+                                  ],
+                                ),
+                                children: [
+                                  ...stats.sessions.map(
+                                    (session) {
+                                      return ListTile(
+                                        onTap: () {
+                                          // does nothing as of v1.0.0
+                                          // the sole purpose of adding this empty callback
+                                          // is to let the user see on which session entry he is
+                                          // currently viewing without location the cursor.
+                                        },
+                                        tileColor: session.hasTag
+                                            ? AppColors.secondary
+                                                .withOpacity(0.05)
+                                            : null,
+                                        splashColor:
+                                            AppColors.primary.withOpacity(0.1),
+                                        focusColor:
+                                            AppColors.primary.withOpacity(0.2),
+                                        hoverColor:
+                                            AppColors.primary.withOpacity(0.05),
+                                        mouseCursor: SystemMouseCursors.basic,
+                                        title: Text(
+                                          "Session ${session.id}",
                                           style: TextStyle(
                                             color: AppColors.onSurface,
                                           ),
                                         ),
-                                        const Gap(5),
-                                        const Icon(
-                                          Icons.keyboard_arrow_down,
-                                        ),
-                                      ],
-                                    ),
-                                    children: [
-                                      ...stats.sessions.map(
-                                        (session) {
-                                          return ListTile(
-                                            onTap: () {
-                                              // does nothing as of v1.0.0
-                                              // the sole purpose of adding this empty callback
-                                              // is to let the user see on which session entry he is
-                                              // currently viewing without location the cursor.
-                                            },
-                                            tileColor: session.hasTag
-                                                ? AppColors.secondary
-                                                    .withOpacity(0.05)
-                                                : null,
-                                            splashColor: AppColors.primary
-                                                .withOpacity(0.1),
-                                            focusColor: AppColors.primary
-                                                .withOpacity(0.2),
-                                            hoverColor: AppColors.primary
-                                                .withOpacity(0.05),
-                                            mouseCursor:
-                                                SystemMouseCursors.basic,
-                                            title: Text(
-                                              "Session ${session.id}",
+                                        subtitle: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              session.dayRange,
                                               style: TextStyle(
+                                                fontSize: 12,
                                                 color: AppColors.onSurface,
+                                                fontWeight: FontWeight.w600
+                                                    .themed(brightness),
                                               ),
                                             ),
-                                            subtitle: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  session.dayRange,
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: AppColors.onSurface,
-                                                    fontWeight: FontWeight.w600
-                                                        .themed(brightness),
-                                                  ),
-                                                ),
-                                                Text(
-                                                  session.timeRange,
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: AppColors.onSurface,
-                                                    fontWeight: FontWeight.w600
-                                                        .themed(brightness),
-                                                  ),
-                                                ),
-                                              ],
+                                            Text(
+                                              session.timeRange,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: AppColors.onSurface,
+                                                fontWeight: FontWeight.w600
+                                                    .themed(brightness),
+                                              ),
                                             ),
-                                            trailing: SizedBox(
-                                              width: 140,
-                                              height: 50,
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    "${session.hasTag ? "~" : ""}${session.time.timeShort}",
-                                                    textAlign: TextAlign.right,
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color:
-                                                          AppColors.onSurface,
-                                                      fontWeight: FontWeight
-                                                          .w600
-                                                          .themed(brightness),
-                                                    ),
-                                                  ),
-                                                  if (session.hasTag) ...[
-                                                    MouseRegion(
-                                                      cursor: SystemMouseCursors
-                                                          .click,
-                                                      child: GestureDetector(
-                                                        onTap: () {
-                                                          Get.to(() {
-                                                            return SessionTagInfoPage(
-                                                              session: session,
-                                                            );
-                                                          });
-                                                        },
-                                                        child: Tooltip(
-                                                          message:
-                                                              "Click to know more",
-                                                          child: Row(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: [
-                                                              Text(
-                                                                session
-                                                                    .tagDisplayName,
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize: 10,
-                                                                  color: AppColors
-                                                                      .onSurface,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600
-                                                                          .themed(
-                                                                              brightness),
-                                                                ),
-                                                              ),
-                                                              const Gap(3),
-                                                              Icon(
-                                                                Icons
-                                                                    .info_outlined,
-                                                                size: 14,
-                                                                color: AppColors
-                                                                    .onSurface,
-                                                              ),
-                                                            ],
+                                          ],
+                                        ),
+                                        trailing: SizedBox(
+                                          width: 140,
+                                          height: 50,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "${session.hasTag ? "~" : ""}${session.time.timeShort}",
+                                                textAlign: TextAlign.right,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: AppColors.onSurface,
+                                                  fontWeight: FontWeight.w600
+                                                      .themed(brightness),
+                                                ),
+                                              ),
+                                              if (session.hasTag) ...[
+                                                MouseRegion(
+                                                  cursor:
+                                                      SystemMouseCursors.click,
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      Get.to(() {
+                                                        return SessionTagInfoPage(
+                                                          session: session,
+                                                        );
+                                                      });
+                                                    },
+                                                    child: Tooltip(
+                                                      message:
+                                                          "Click to know more",
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          Text(
+                                                            session
+                                                                .tagDisplayName,
+                                                            style: TextStyle(
+                                                              fontSize: 10,
+                                                              color: AppColors
+                                                                  .onSurface,
+                                                              fontWeight: FontWeight
+                                                                  .w600
+                                                                  .themed(
+                                                                      brightness),
+                                                            ),
                                                           ),
-                                                        ),
+                                                          const Gap(3),
+                                                          Icon(
+                                                            Icons.info_outlined,
+                                                            size: 14,
+                                                            color: AppColors
+                                                                .onSurface,
+                                                          ),
+                                                        ],
                                                       ),
                                                     ),
-                                                  ]
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ),
+                                                  ),
+                                                ),
+                                              ]
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              );
+                            }),
                           ],
                         ),
                       ),
