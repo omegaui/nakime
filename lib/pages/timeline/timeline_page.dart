@@ -674,6 +674,8 @@ class _TimelinePageState extends State<TimelinePage> {
                                 message: "Click to load sessions",
                                 child: TextButton(
                                   onPressed: () async {
+                                    _spots = [];
+                                    _animateSpots = true;
                                     if (_searchInProgress) return;
                                     setState(() {
                                       result = null;

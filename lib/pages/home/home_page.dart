@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:nakime/config/app_colors.dart';
+import 'package:nakime/core/constants/service_constants.dart';
 import 'package:nakime/core/extensions/font_weight_extension.dart';
 import 'package:nakime/core/extensions/live_session_state_extension.dart';
 import 'package:nakime/core/extensions/time_extension.dart';
 import 'package:nakime/core/sessions/live_session.dart';
+import 'package:nakime/core/sessions/session_health_checks.dart';
 import 'package:nakime/pages/info/app_info_page.dart';
 import 'package:nakime/pages/stats/today_stats_page.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -192,6 +195,52 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: FutureBuilder(
+                future: SessionHealthChecks.errorCount(),
+                builder: (context, snapshot) {
+                  if (snapshot.data == null || snapshot.data == 0) {
+                    return const SizedBox();
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: SizedBox(
+                      width: 250,
+                      child: Tooltip(
+                        message:
+                            "Please report the errors on GitHub (click to open log folder)",
+                        child: ListTile(
+                          onTap: () {
+                            launchUrlString(ServiceConstants.errorLogsDir);
+                          },
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          leading: Icon(
+                            Icons.warning_amber_outlined,
+                            color: AppColors.onSurface.withOpacity(0.7),
+                          ),
+                          title: Text(
+                            "${snapshot.data} Errors encountered",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.onSurface,
+                            ),
+                          ),
+                          subtitle: Text(
+                            "attention needed",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.onSurface,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
           ),
         ],
       ),
