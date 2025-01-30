@@ -10,6 +10,7 @@ import 'package:nakime/core/extensions/live_session_state_extension.dart';
 import 'package:nakime/core/extensions/time_extension.dart';
 import 'package:nakime/core/sessions/live_session.dart';
 import 'package:nakime/core/sessions/session_health_checks.dart';
+import 'package:nakime/pages/help/help_page.dart';
 import 'package:nakime/pages/info/app_info_page.dart';
 import 'package:nakime/pages/stats/today_stats_page.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -161,7 +162,9 @@ class _HomePageState extends State<HomePage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Get.to(() => const HelpPage());
+                      },
                       icon: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [

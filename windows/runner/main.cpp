@@ -25,11 +25,22 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   project.set_dart_entrypoint_arguments(std::move(command_line_arguments));
 
   FlutterWindow window(project);
-  Win32Window::Point origin(10, 10);
-  Win32Window::Size size(900, 720);
+  int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+  int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+  int windowWidth = 900;
+  int windowHeight = 720;
+
+  // Calculate center position
+  int centerX = (screenWidth - windowWidth) / 2;
+  int centerY = (screenHeight - windowHeight) / 2;
+
+  Win32Window::Point origin(centerX, centerY);
+  Win32Window::Size size(windowWidth, windowHeight);
+
   if (!window.Create(L"Nakime", origin, size)) {
     return EXIT_FAILURE;
   }
+
   window.SetQuitOnClose(true);
 
   ::MSG msg;

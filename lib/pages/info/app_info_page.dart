@@ -110,15 +110,3 @@ class AppInfoPage extends StatelessWidget {
     );
   }
 }
-
-class Clipp extends CustomClipper<Rect> {
-  @override
-  Rect getClip(Size size) {
-    return Rect.fromLTRB(0, 90, size.width, size.height);
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Rect> oldClipper) {
-    return true;
-  }
-}

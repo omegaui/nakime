@@ -217,7 +217,7 @@ class _TimelinePageState extends State<TimelinePage> {
                                 }).toList();
                                 _animateSpots = false;
                                 Future.delayed(
-                                  const Duration(milliseconds: 500),
+                                  const Duration(milliseconds: 250),
                                   () {
                                     _spots = result!.data.entries.map((e) {
                                       return FlSpot(
@@ -366,7 +366,7 @@ class _TimelinePageState extends State<TimelinePage> {
                                       ),
                                     ),
                                   ),
-                                  duration: const Duration(milliseconds: 500),
+                                  duration: const Duration(milliseconds: 250),
                                 ),
                               );
                             }),
