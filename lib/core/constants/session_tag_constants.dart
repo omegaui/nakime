@@ -7,7 +7,7 @@ class SessionTagConstants {
 
   static final Map<String, String> _tagDescriptions = {
     "session-recovered":
-        "This session may have lasted for up-to 1 more minute and not more than that. This fluctuation in data is encountered because whenever you restart your system, Windows doesn't gives enough time to the background service to save the session state successfully, as a result, when the system is turned on again, the background service of Nakime tries to recover the previous session by checking it's previous unsaved session data which is updated every minute, so there is chance that the system might not have been able to shutdown at the exact time recorded and would have taken from 1 second to up-to 1 minute to close. However, this fluctuation is negligible.",
+        "The session may have lasted up to 1 minute longer due to a delay in saving the session state when restarting the system. Windows doesn’t give enough time for the background service to save properly. When the system restarts, Nakime's background service tries to recover the previous session by checking unsaved data, which updates every minute. This can cause a slight fluctuation in the recorded shutdown time, but it’s negligible.",
   };
 
   static final Map<String, String> _tagTimeSignificances = {
