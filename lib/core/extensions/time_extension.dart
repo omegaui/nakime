@@ -21,10 +21,10 @@ extension TimeExtension on Duration {
       content += "$hours hour$s ";
     }
     if (hours > 0 || min > 0) {
-      final s = hours > 1 ? "s" : "";
+      final s = min > 1 ? "s" : "";
       content += "$min minute$s ";
     }
-    final s = hours > 1 ? "s" : "";
+    final s = sec > 1 ? "s" : "";
     content += "$sec second$s";
     return content;
   }
