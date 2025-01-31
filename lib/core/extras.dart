@@ -1,3 +1,5 @@
+import 'dart:io';
+
 String getNaturalLanguageNameForDay(int day) {
   if (day < 1 || day > 31) {
     throw ArgumentError("Day must be between 1 and 31.");
@@ -15,4 +17,12 @@ String getNaturalLanguageNameForDay(int day) {
   }
 
   return "$day$suffix";
+}
+
+Future<bool> isUptimeInstalled() async {
+  final result = await Process.run(
+    'uptime',
+    ['--help'],
+  );
+  return result.exitCode == 0;
 }
