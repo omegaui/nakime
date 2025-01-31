@@ -1,5 +1,5 @@
 ---
-name: "\U0001FAB2 [BUG] Title goes here"
+name: "\U0001FAB2 [BUG]"
 about: Report an issue to help us improve Nakime
 title: ''
 labels: bug
