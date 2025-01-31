@@ -29,6 +29,10 @@ class TimelineReadResult {
     return data[data.keys.firstWhere((e) => e.day == day)]!;
   }
 
+  bool get isSameMonth =>
+      actualStartDaySearchStatus.actualDay.month ==
+      actualEndDaySearchStatus.actualDay.month;
+
   TimelineReadResult({
     required this.timeline,
     required this.data,

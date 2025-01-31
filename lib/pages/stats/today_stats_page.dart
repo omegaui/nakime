@@ -236,7 +236,7 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
                     // does nothing as of v1.0.0
                     // the sole purpose of adding this empty callback
                     // is to let the user see on which session entry he is
-                    // currently viewing without location the cursor.
+                    // currently viewing without locating the cursor.
                   },
                   tileColor: session.hasTag
                       ? AppColors.secondary.withOpacity(0.05)

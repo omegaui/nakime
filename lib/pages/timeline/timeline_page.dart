@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -12,6 +14,31 @@ import 'package:nakime/core/sessions/session_export_utils.dart';
 import 'package:nakime/core/sessions/session_reader.dart';
 import 'package:nakime/pages/info/session_tag_info_page.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+
+enum _PredefinedFilter {
+  thisWeek,
+  thisMonth,
+  last7Days,
+  last14Days,
+  last30Days,
+}
+
+extension _PredefinedFilterExtension on _PredefinedFilter {
+  String get displayName {
+    switch (this) {
+      case _PredefinedFilter.thisWeek:
+        return "This week";
+      case _PredefinedFilter.thisMonth:
+        return "This month";
+      case _PredefinedFilter.last7Days:
+        return "Last 7 days";
+      case _PredefinedFilter.last14Days:
+        return "Last 14 days";
+      case _PredefinedFilter.last30Days:
+        return "Last 30 days";
+    }
+  }
+}
 
 enum _ChartType {
   line,
@@ -101,10 +128,53 @@ class _TimelinePageState extends State<TimelinePage> {
     super.initState();
   }
 
+  void applyPredefinedFilter(_PredefinedFilter filter) async {
+    final now = DateTime.now();
+    var start = now;
+    var end = now.endOfDay;
+    switch (filter) {
+      case _PredefinedFilter.thisWeek:
+        start = end.subtract(Duration(days: start.weekday - 1));
+      case _PredefinedFilter.thisMonth:
+        start = DateTime(start.year, start.month, 1);
+      case _PredefinedFilter.last7Days:
+        start = end.subtract(const Duration(days: 6)).startOfDay;
+      case _PredefinedFilter.last14Days:
+        start = end.subtract(const Duration(days: 14)).startOfDay;
+      case _PredefinedFilter.last30Days:
+        start = end.subtract(const Duration(days: 30)).startOfDay;
+    }
+    _startTime = start;
+    _endTime = end;
+
+    _spots = [];
+    _animateSpots = true;
+    if (_searchInProgress) return;
+    setState(() {
+      result = null;
+      _searchInProgress = true;
+      _hideControls = true;
+    });
+    try {
+      result = await SessionReader.readTimeline(
+        _startTime!,
+        _endTime!,
+      );
+    } catch (e, stack) {
+      debugPrint("$e\n$stack");
+    } finally {
+      setState(() {
+        _searchInProgress = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final brightness = MediaQuery.platformBrightnessOf(context);
     final days = result == null ? [] : result!.data.keys.toList();
+    final canShowSystemUptimeGraph =
+        result != null && result!.isSameMonth && result!.data.length > 1;
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Padding(
@@ -144,29 +214,31 @@ class _TimelinePageState extends State<TimelinePage> {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _chartType = _chartType.next;
-                                  });
-                                },
-                                tooltip:
-                                    "Click to change to ${_chartType.next.displayName}",
-                                icon: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      _chartType.displayName,
-                                    ),
-                                    const Gap(4),
-                                    Icon(
-                                      _chartType.iconData,
-                                      color: AppColors.onSurface,
-                                    ),
-                                  ],
+                              if (canShowSystemUptimeGraph) ...[
+                                IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _chartType = _chartType.next;
+                                    });
+                                  },
+                                  tooltip:
+                                      "Click to change to ${_chartType.next.displayName}",
+                                  icon: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        _chartType.displayName,
+                                      ),
+                                      const Gap(4),
+                                      Icon(
+                                        _chartType.iconData,
+                                        color: AppColors.onSurface,
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const Gap(10),
+                                const Gap(10),
+                              ],
                               IconButton(
                                 onPressed: () async {
                                   final exportPath =
@@ -206,191 +278,208 @@ class _TimelinePageState extends State<TimelinePage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Gap(40),
-                            StatefulBuilder(builder: (context, setChartState) {
-                              if (_animateSpots) {
-                                _spots = result!.data.entries.map((e) {
-                                  return FlSpot(
-                                    e.key.day.toDouble(),
-                                    0,
+                            if (canShowSystemUptimeGraph) ...[
+                              const Gap(40),
+                              StatefulBuilder(
+                                  builder: (context, setChartState) {
+                                if (_animateSpots) {
+                                  _spots = result!.data.entries.map((e) {
+                                    return FlSpot(
+                                      e.key.day.toDouble(),
+                                      0,
+                                    );
+                                  }).toList();
+                                  _animateSpots = false;
+                                  Future.delayed(
+                                    const Duration(milliseconds: 250),
+                                    () {
+                                      _spots = result!.data.entries.map((e) {
+                                        return FlSpot(
+                                          e.key.day.toDouble(),
+                                          e.value.totalTime.asHours,
+                                        );
+                                      }).toList();
+                                      setChartState(() {});
+                                    },
                                   );
-                                }).toList();
-                                _animateSpots = false;
-                                Future.delayed(
-                                  const Duration(milliseconds: 250),
-                                  () {
-                                    _spots = result!.data.entries.map((e) {
-                                      return FlSpot(
-                                        e.key.day.toDouble(),
-                                        e.value.totalTime.asHours,
-                                      );
-                                    }).toList();
-                                    setChartState(() {});
-                                  },
-                                );
-                              }
-                              return SizedBox(
-                                height: 380,
-                                child: LineChart(
-                                  LineChartData(
-                                    gridData: FlGridData(
-                                      show: true,
-                                      drawVerticalLine: true,
-                                      drawHorizontalLine: true,
-                                      horizontalInterval: 1,
-                                      verticalInterval: 1,
-                                      getDrawingHorizontalLine: (value) {
-                                        return FlLine(
-                                          color: AppColors.onSurface
-                                              .withOpacity(0.05),
-                                          strokeWidth: 0.6,
-                                        );
-                                      },
-                                      getDrawingVerticalLine: (value) {
-                                        return FlLine(
-                                          color: AppColors.onSurface
-                                              .withOpacity(0.05),
-                                          strokeWidth: 1,
-                                        );
-                                      },
-                                    ),
-                                    titlesData: FlTitlesData(
-                                      show: true,
-                                      rightTitles: const AxisTitles(
-                                        sideTitles:
-                                            SideTitles(showTitles: false),
+                                }
+                                return SizedBox(
+                                  height: 380,
+                                  child: LineChart(
+                                    LineChartData(
+                                      gridData: FlGridData(
+                                        show: true,
+                                        drawVerticalLine: true,
+                                        drawHorizontalLine: true,
+                                        horizontalInterval: 1,
+                                        verticalInterval: 1,
+                                        getDrawingHorizontalLine: (value) {
+                                          return FlLine(
+                                            color: AppColors.onSurface
+                                                .withOpacity(0.05),
+                                            strokeWidth: 0.6,
+                                          );
+                                        },
+                                        getDrawingVerticalLine: (value) {
+                                          return FlLine(
+                                            color: AppColors.onSurface
+                                                .withOpacity(0.05),
+                                            strokeWidth: 1,
+                                          );
+                                        },
                                       ),
-                                      topTitles: const AxisTitles(
-                                        sideTitles:
-                                            SideTitles(showTitles: false),
-                                      ),
-                                      bottomTitles: AxisTitles(
-                                        sideTitles: SideTitles(
-                                          showTitles: true,
-                                          reservedSize: 20,
-                                          minIncluded: true,
-                                          interval: result!.dayIntervalOnGraph,
-                                          getTitlesWidget: (
-                                            double value,
-                                            TitleMeta meta,
-                                          ) {
-                                            return Text(
-                                              getNaturalLanguageNameForDay(
-                                                  value.round()),
-                                              textAlign: TextAlign.left,
-                                            );
-                                          },
+                                      titlesData: FlTitlesData(
+                                        show: true,
+                                        rightTitles: const AxisTitles(
+                                          sideTitles:
+                                              SideTitles(showTitles: false),
+                                        ),
+                                        topTitles: const AxisTitles(
+                                          sideTitles:
+                                              SideTitles(showTitles: false),
+                                        ),
+                                        bottomTitles: AxisTitles(
+                                          sideTitles: SideTitles(
+                                            showTitles: true,
+                                            reservedSize: 20,
+                                            minIncluded: true,
+                                            interval:
+                                                result!.dayIntervalOnGraph,
+                                            getTitlesWidget: (
+                                              double value,
+                                              TitleMeta meta,
+                                            ) {
+                                              return Text(
+                                                getNaturalLanguageNameForDay(
+                                                    value.round()),
+                                                textAlign: TextAlign.left,
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        leftTitles: AxisTitles(
+                                          sideTitles: SideTitles(
+                                            showTitles: true,
+                                            interval:
+                                                result!.timeIntervalOnGraph,
+                                            minIncluded: false,
+                                            getTitlesWidget: (
+                                              double value,
+                                              TitleMeta meta,
+                                            ) {
+                                              return Text(
+                                                "${value.round()} Hr${value == 1 ? "" : "s"}",
+                                                textAlign: TextAlign.left,
+                                              );
+                                            },
+                                            reservedSize: 42,
+                                          ),
                                         ),
                                       ),
-                                      leftTitles: AxisTitles(
-                                        sideTitles: SideTitles(
-                                          showTitles: true,
-                                          interval: result!.timeIntervalOnGraph,
-                                          minIncluded: false,
-                                          getTitlesWidget: (
-                                            double value,
-                                            TitleMeta meta,
-                                          ) {
-                                            return Text(
-                                              "${value.round()} Hr${value == 1 ? "" : "s"}",
-                                              textAlign: TextAlign.left,
-                                            );
-                                          },
-                                          reservedSize: 42,
-                                        ),
+                                      borderData: FlBorderData(
+                                        show: false,
                                       ),
-                                    ),
-                                    borderData: FlBorderData(
-                                      show: false,
-                                    ),
-                                    minX: result!.actualStartDaySearchStatus
-                                        .actualDay.day
-                                        .toDouble(),
-                                    maxX: result!
-                                        .actualEndDaySearchStatus.actualDay.day
-                                        .toDouble(),
-                                    minY: 0,
-                                    maxY:
-                                        result!.maxTime.inHours.toDouble() + 1,
-                                    lineBarsData: [
-                                      LineChartBarData(
-                                        spots: _spots,
-                                        isCurved: _chartType != _ChartType.line,
-                                        isStepLineChart:
-                                            _chartType == _ChartType.step,
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            AppColors.onSurface
-                                                .withOpacity(0.2),
-                                            AppColors.primary,
-                                          ],
-                                        ),
-                                        barWidth: 5,
-                                        isStrokeCapRound: true,
-                                        dotData: const FlDotData(
-                                          show: false,
-                                        ),
-                                        belowBarData: BarAreaData(
-                                          show: true,
+                                      minX: result!.actualStartDaySearchStatus
+                                          .actualDay.day
+                                          .toDouble(),
+                                      maxX: result!.actualEndDaySearchStatus
+                                          .actualDay.day
+                                          .toDouble(),
+                                      minY: 0,
+                                      maxY: result!.maxTime.inHours.toDouble() +
+                                          1,
+                                      lineBarsData: [
+                                        LineChartBarData(
+                                          spots: _spots,
+                                          isCurved:
+                                              _chartType != _ChartType.line,
+                                          isStepLineChart:
+                                              _chartType == _ChartType.step,
                                           gradient: LinearGradient(
                                             colors: [
                                               AppColors.onSurface
                                                   .withOpacity(0.2),
                                               AppColors.primary,
-                                            ]
-                                                .map((color) =>
-                                                    color.withOpacity(0.1))
-                                                .toList(),
+                                            ],
+                                          ),
+                                          barWidth: 5,
+                                          isStrokeCapRound: true,
+                                          dotData: const FlDotData(
+                                            show: false,
+                                          ),
+                                          belowBarData: BarAreaData(
+                                            show: true,
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                AppColors.onSurface
+                                                    .withOpacity(0.2),
+                                                AppColors.primary,
+                                              ]
+                                                  .map((color) =>
+                                                      color.withOpacity(0.1))
+                                                  .toList(),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                    lineTouchData: LineTouchData(
-                                      touchTooltipData: LineTouchTooltipData(
-                                        getTooltipItems: (touchedSpots) {
-                                          return touchedSpots.map((e) {
-                                            return LineTooltipItem(
-                                              result!
-                                                  .getStatAt(e.x.toInt())
-                                                  .totalTime
-                                                  .timeShort,
-                                              const TextStyle(
-                                                fontSize: 12,
-                                              ),
-                                            );
-                                          }).toList();
-                                        },
-                                        getTooltipColor: (touchedSpot) {
-                                          return AppColors.surface;
-                                        },
+                                      ],
+                                      lineTouchData: LineTouchData(
+                                        touchTooltipData: LineTouchTooltipData(
+                                          getTooltipItems: (touchedSpots) {
+                                            return touchedSpots.map((e) {
+                                              return LineTooltipItem(
+                                                result!
+                                                    .getStatAt(e.x.toInt())
+                                                    .totalTime
+                                                    .timeShort,
+                                                const TextStyle(
+                                                  fontSize: 12,
+                                                ),
+                                              );
+                                            }).toList();
+                                          },
+                                          getTooltipColor: (touchedSpot) {
+                                            return AppColors.surface;
+                                          },
+                                        ),
                                       ),
                                     ),
+                                    duration: const Duration(milliseconds: 250),
                                   ),
-                                  duration: const Duration(milliseconds: 250),
-                                ),
-                              );
-                            }),
-                            const Gap(10),
-                            const Align(
-                              child: Text(
-                                "System Uptime Graph",
-                                style: TextStyle(
-                                  fontStyle: FontStyle.italic,
+                                );
+                              }),
+                              const Gap(10),
+                              const Align(
+                                child: Text(
+                                  "System Uptime Graph",
+                                  style: TextStyle(
+                                    fontStyle: FontStyle.italic,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const Gap(20),
+                              const Gap(20),
+                            ] else ...[
+                              if (result!.data.length <= 1) ...[
+                                const Text(
+                                  "Not enough data to create the System Uptime Graph",
+                                ),
+                              ] else ...[
+                                const Text(
+                                  "System Uptime Graph is can only be displayed for start and end days of the same month.",
+                                ),
+                              ],
+                            ],
                             if (!result!
                                 .actualStartDaySearchStatus.accurate) ...[
                               Text(
-                                "Note: You don't have an individual session on selected start day \"${DateFormat("MMM d, yyyy").format(_startTime!)}\"${!_startTime!.isSameDay(result!.actualStartDaySearchStatus.actualDay) ? ", tried to load sessions from back up-to \"${DateFormat("MMM d, yyyy").format(result!.actualStartDaySearchStatus.actualDay)}\" instead." : "."}",
+                                "You don't have an individual session on selected start day \"${DateFormat("MMM d, yyyy").format(_startTime!)}\"${!_startTime!.isSameDay(result!.actualStartDaySearchStatus.actualDay) ? ", tried to load sessions from \"${DateFormat("MMM d, yyyy").format(result!.actualStartDaySearchStatus.actualDay)}\" instead." : "."}",
                               ),
                             ],
                             if (!result!.actualEndDaySearchStatus.accurate) ...[
                               Text(
-                                "Note: You don't have an individual session on selected end day \"${DateFormat("MMM d, yyyy").format(_endTime!)}\"${!_endTime!.isSameDay(result!.actualEndDaySearchStatus.actualDay) ? ", tried to load sessions from back up-to \"${DateFormat("MMM d, yyyy").format(result!.actualEndDaySearchStatus.actualDay)}\" instead." : "."}",
+                                "You don't have an individual session on selected end day \"${DateFormat("MMM d, yyyy").format(_endTime!)}\"${!_endTime!.isSameDay(result!.actualEndDaySearchStatus.actualDay) ? ", tried to load sessions from \"${DateFormat("MMM d, yyyy").format(result!.actualEndDaySearchStatus.actualDay)}\" instead." : "."}",
                               ),
                             ],
+                            const Gap(10),
                             const Text(
                               "Session Summary",
                               style: TextStyle(
@@ -446,7 +535,7 @@ class _TimelinePageState extends State<TimelinePage> {
                                           // does nothing as of v1.0.0
                                           // the sole purpose of adding this empty callback
                                           // is to let the user see on which session entry he is
-                                          // currently viewing without location the cursor.
+                                          // currently viewing without locating the cursor.
                                         },
                                         tileColor: session.hasTag
                                             ? AppColors.secondary
@@ -575,214 +664,232 @@ class _TimelinePageState extends State<TimelinePage> {
               alignment: Alignment.bottomRight,
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: !_showPicker
-                    ? Row(
-                        key: const ValueKey("pick-buttons"),
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (_startTime != null && _endTime != null) ...[
-                            IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _hideControls = !_hideControls;
-                                });
-                              },
-                              tooltip: _hideControls
-                                  ? "Show Controls"
-                                  : "Hide Controls",
-                              icon: Icon(
-                                _hideControls
-                                    ? Icons.keyboard_arrow_left_rounded
-                                    : Icons.keyboard_arrow_right_rounded,
-                              ),
-                            ),
-                            const Gap(5),
-                          ],
-                          if (!_hideControls) ...[
-                            if (_startTime != null && _endTime != null) ...[
-                              const Text("From"),
-                              const Gap(5),
-                            ],
-                            IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _pickerMode = "start-date";
-                                  _showPicker = true;
-                                });
-                              },
-                              tooltip:
-                                  "Specify the date from which sessions will be shown",
-                              icon: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    _startTime == null
-                                        ? "Pick Start Date"
-                                        : DateFormat("MMM d, yyyy")
-                                            .format(_startTime!),
-                                  ),
-                                  if (_startTime != null) ...[
-                                    const Text(
-                                      "Click to change",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                            const Gap(5),
-                            if (_startTime != null && _endTime != null) ...[
-                              const Gap(5),
-                              const Text("to"),
-                              const Gap(5),
-                            ],
-                            const Gap(5),
-                            IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _pickerMode = "end-date";
-                                  _showPicker = true;
-                                });
-                              },
-                              tooltip:
-                                  "Specify the date till which sessions will be shown",
-                              icon: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    _endTime == null
-                                        ? "Pick End Date"
-                                        : DateFormat("MMM d, yyyy")
-                                            .format(_endTime!),
-                                  ),
-                                  if (_endTime != null) ...[
-                                    const Text(
-                                      "Click to change",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                            if (_startTime != null && _endTime != null) ...[
-                              const Gap(10),
-                              Tooltip(
-                                message: "Click to load sessions",
-                                child: TextButton(
-                                  onPressed: () async {
-                                    _spots = [];
-                                    _animateSpots = true;
-                                    if (_searchInProgress) return;
-                                    setState(() {
-                                      result = null;
-                                      _searchInProgress = true;
-                                      _hideControls = true;
-                                    });
-                                    try {
-                                      result = await SessionReader.readTimeline(
-                                        _startTime!,
-                                        _endTime!,
-                                      );
-                                    } catch (e, stack) {
-                                      debugPrint("$e\n$stack");
-                                    } finally {
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _hideControls || result == null
+                        ? Colors.transparent
+                        : AppColors.surface.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ClipRect(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                      child: !_showPicker
+                          ? Row(
+                              key: const ValueKey("pick-buttons"),
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (_startTime != null && _endTime != null) ...[
+                                  IconButton(
+                                    onPressed: () {
                                       setState(() {
-                                        _searchInProgress = false;
+                                        _hideControls = !_hideControls;
                                       });
-                                    }
-                                  },
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: !_searchInProgress
-                                        ? Colors.transparent
-                                        : Colors.grey.withOpacity(0.21),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
+                                    },
+                                    tooltip: _hideControls
+                                        ? "Show Controls"
+                                        : "Hide Controls",
+                                    icon: Icon(
+                                      _hideControls
+                                          ? Icons.keyboard_arrow_left_rounded
+                                          : Icons.keyboard_arrow_right_rounded,
                                     ),
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 8.0),
-                                    child: Row(
+                                  const Gap(5),
+                                ],
+                                if (!_hideControls) ...[
+                                  if (_startTime != null &&
+                                      _endTime != null) ...[
+                                    const Text("From"),
+                                    const Gap(5),
+                                  ],
+                                  IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _pickerMode = "start-date";
+                                        _showPicker = true;
+                                      });
+                                    },
+                                    tooltip:
+                                        "Specify the date from which sessions will be shown",
+                                    icon: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(
-                                          Icons.done,
-                                          color: AppColors.onSurface,
-                                        ),
-                                        const Gap(4),
                                         Text(
-                                          "Apply",
-                                          style: TextStyle(
-                                            color: AppColors.onSurface,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                          _startTime == null
+                                              ? "Pick Start Date"
+                                              : DateFormat("MMM d, yyyy")
+                                                  .format(_startTime!),
                                         ),
+                                        if (_startTime != null) ...[
+                                          const Text(
+                                            "Click to change",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
                                       ],
                                     ),
                                   ),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ],
-                      )
-                    : SizedBox(
-                        width: 300,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Theme(
-                              data: brightness == Brightness.light
-                                  ? ThemeData.light()
-                                  : ThemeData.dark(),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: result != null
-                                      ? AppColors.surface
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: CalendarDatePicker(
-                                  initialDate: _pickerMode == "start-date"
-                                      ? (_startTime ?? _now)
-                                      : (_endTime ?? _now),
-                                  currentDate: _now,
-                                  firstDate: DateTime(2000, 1, 1),
-                                  lastDate: _now,
-                                  onDateChanged: (value) {
-                                    if (_pickerMode == "start-date") {
-                                      _startTime = value;
-                                    } else {
-                                      _endTime = value;
-                                    }
-                                  },
-                                ),
+                                  const Gap(5),
+                                  if (_startTime != null &&
+                                      _endTime != null) ...[
+                                    const Gap(5),
+                                    const Text("to"),
+                                    const Gap(5),
+                                  ],
+                                  const Gap(5),
+                                  IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _pickerMode = "end-date";
+                                        _showPicker = true;
+                                      });
+                                    },
+                                    tooltip:
+                                        "Specify the date till which sessions will be shown",
+                                    icon: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          _endTime == null
+                                              ? "Pick End Date"
+                                              : DateFormat("MMM d, yyyy")
+                                                  .format(_endTime!),
+                                        ),
+                                        if (_endTime != null) ...[
+                                          const Text(
+                                            "Click to change",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                  if (_startTime != null &&
+                                      _endTime != null) ...[
+                                    const Gap(10),
+                                    Tooltip(
+                                      message: "Click to load sessions",
+                                      child: TextButton(
+                                        onPressed: () async {
+                                          _spots = [];
+                                          _animateSpots = true;
+                                          if (_searchInProgress) return;
+                                          setState(() {
+                                            result = null;
+                                            _searchInProgress = true;
+                                            _hideControls = true;
+                                          });
+                                          try {
+                                            result = await SessionReader
+                                                .readTimeline(
+                                              _startTime!,
+                                              _endTime!,
+                                            );
+                                          } catch (e, stack) {
+                                            debugPrint("$e\n$stack");
+                                          } finally {
+                                            setState(() {
+                                              _searchInProgress = false;
+                                            });
+                                          }
+                                        },
+                                        style: TextButton.styleFrom(
+                                          backgroundColor: !_searchInProgress
+                                              ? Colors.transparent
+                                              : Colors.grey.withOpacity(0.21),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8.0),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.done,
+                                                color: AppColors.onSurface,
+                                              ),
+                                              const Gap(4),
+                                              Text(
+                                                "Apply",
+                                                style: TextStyle(
+                                                  color: AppColors.onSurface,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ],
+                            )
+                          : SizedBox(
+                              width: 300,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Theme(
+                                    data: brightness == Brightness.light
+                                        ? ThemeData.light()
+                                        : ThemeData.dark(),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: result != null
+                                            ? AppColors.surface
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: CalendarDatePicker(
+                                        initialDate: _pickerMode == "start-date"
+                                            ? (_startTime ?? _now)
+                                            : (_endTime ?? _now),
+                                        currentDate: _now,
+                                        firstDate: DateTime(2000, 1, 1),
+                                        lastDate: _now,
+                                        onDateChanged: (value) {
+                                          if (_pickerMode == "start-date") {
+                                            _startTime = value;
+                                          } else {
+                                            _endTime = value;
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  const Gap(10),
+                                  IconButton(
+                                    onPressed: () {
+                                      // handling natural input selection
+                                      if (_endTime == null &&
+                                          _pickerMode == "end-date") {
+                                        _endTime = _now;
+                                      } else if (_startTime == null &&
+                                          _pickerMode == "start-date") {
+                                        _startTime = _now;
+                                      }
+                                      setState(() {
+                                        _showPicker = false;
+                                      });
+                                    },
+                                    icon: const Text("Done"),
+                                  ),
+                                ],
                               ),
                             ),
-                            const Gap(10),
-                            IconButton(
-                              onPressed: () {
-                                // handling natural input selection
-                                if (_endTime == null &&
-                                    _pickerMode == "end-date") {
-                                  _endTime = _now;
-                                } else if (_startTime == null &&
-                                    _pickerMode == "start-date") {
-                                  _startTime = _now;
-                                }
-                                setState(() {
-                                  _showPicker = false;
-                                });
-                              },
-                              icon: const Text("Done"),
-                            ),
-                          ],
-                        ),
-                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
             if (_searchInProgress) ...[
@@ -830,6 +937,47 @@ class _TimelinePageState extends State<TimelinePage> {
                       ),
               ),
             ),
+            if (result == null) ...[
+              Align(
+                alignment: Alignment.center,
+                child: SizedBox(
+                  width: 300,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Select any of these predefined filters",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.onSurface.withOpacity(0.9),
+                        ),
+                      ),
+                      const Gap(10),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        alignment: WrapAlignment.center,
+                        runAlignment: WrapAlignment.center,
+                        children: [
+                          ..._PredefinedFilter.values.map(
+                            (e) => IconButton(
+                              onPressed: () => applyPredefinedFilter(e),
+                              icon: Text(
+                                e.displayName,
+                                style: TextStyle(
+                                  color: AppColors.onSurface.withOpacity(0.9),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

@@ -5,6 +5,14 @@ import 'package:nakime/core/constants/service_constants.dart';
 import 'package:nakime/core/sessions/session_reader.dart';
 
 extension DayExtension on DateTime {
+  DateTime get startOfDay {
+    return DateTime(year, month, day);
+  }
+
+  DateTime get endOfDay {
+    return DateTime(year, month, day, hour, minute, second);
+  }
+
   DateTime get previous {
     return subtract(const Duration(days: 1));
   }
