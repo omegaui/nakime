@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:nakime/config/app_colors.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class _FAQ {
   final String question;
@@ -76,7 +77,10 @@ class HelpPage extends StatelessWidget {
                   ],
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    launchUrlString(
+                        'https://github.com/omegaui/nakime/issues/new?template=%F0%9F%AA%B2.md');
+                  },
                   icon: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
