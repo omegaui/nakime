@@ -118,7 +118,7 @@ class AppInfoPage extends StatelessWidget {
                     child: FutureBuilder(
                         future: isUptimeInstalled(),
                         builder: (context, snapshot) {
-                          if (!(snapshot.data ?? false)) {
+                          if (!(snapshot.data ?? true)) {
                             return Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 20,
