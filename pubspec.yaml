@@ -1,8 +1,9 @@
 name: nakime
 description: Keeps a record of system startup and shutdown times.
 publish_to: 'none'
+repository: https://github.com/omegaui/nakime
 
-version: 0.0.1+3-alpha
+version: 0.0.1+5
 
 environment:
   sdk: ^3.5.4

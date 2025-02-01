@@ -115,59 +115,66 @@ class AppInfoPage extends StatelessWidget {
                   ),
                   Align(
                     alignment: Alignment.bottomRight,
-                    child: FutureBuilder(
-                        future: isUptimeInstalled(),
-                        builder: (context, snapshot) {
-                          if (!(snapshot.data ?? true)) {
-                            return Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.surface.withOpacity(0.3),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Text(
-                                    "Did you know?",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  const Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 80.0,
-                                    ),
-                                    child: Text(
-                                      "Nakime also has a command line version called 'uptime', which you can use directly from your windows terminal.",
-                                      textAlign: TextAlign.center,
+                    child: AnimatedSize(
+                      duration: const Duration(milliseconds: 250),
+                      child: FutureBuilder(
+                          future: isUptimeInstalled(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState !=
+                                ConnectionState.done) {
+                              return const SizedBox();
+                            }
+                            if (!(snapshot.data ?? false)) {
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surface.withOpacity(0.3),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text(
+                                      "Did you know?",
                                       style: TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 18,
                                       ),
                                     ),
-                                  ),
-                                  IconButton(
-                                    onPressed: () {
-                                      launchUrlString(
-                                          "https://github.com/omegaui/uptime");
-                                    },
-                                    icon: Text(
-                                      "Check out uptime on GitHub",
-                                      style: TextStyle(
-                                        color: AppColors.onSurface
-                                            .withOpacity(0.9),
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 80.0,
+                                      ),
+                                      child: Text(
+                                        "Nakime also has a command line version called 'uptime', which you can use directly from your windows terminal.",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-                          return const SizedBox();
-                        }),
+                                    IconButton(
+                                      onPressed: () {
+                                        launchUrlString(
+                                            "https://github.com/omegaui/uptime");
+                                      },
+                                      icon: Text(
+                                        "Check out uptime on GitHub",
+                                        style: TextStyle(
+                                          color: AppColors.onSurface
+                                              .withOpacity(0.9),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                            return const SizedBox();
+                          }),
+                    ),
                   ),
                 ],
               ),
