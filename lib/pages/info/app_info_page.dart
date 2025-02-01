@@ -89,7 +89,7 @@ class AppInfoPage extends StatelessWidget {
                         ),
                         const Gap(4),
                         const Text(
-                          "Licensed under Apache License 2.0",
+                          "Licensed under GNU GPL v3",
                           style: TextStyle(
                             fontSize: 14,
                           ),
