@@ -2,6 +2,7 @@
 
 https://github.com/user-attachments/assets/8f6274f1-18b9-4f26-8694-257ce0428bbc
 
+<!--suppress ALL -->
 <div align="center">
   <img src="assets/icons/nakime-256.png"/>
   <p>Meet Nakime</p>

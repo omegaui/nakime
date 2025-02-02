@@ -25,7 +25,7 @@ String getNaturalLanguageNameForDay(int day) {
 
 Future<bool> isUptimeInstalled() async {
   final result = await Process.run(
-    'uptime',
+    'session-uptime',
     ['--help'],
   );
   return result.exitCode == 0;
