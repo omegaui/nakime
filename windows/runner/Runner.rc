@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
+            VALUE "CompanyName", "io.omegaui" "\0"
             VALUE "FileDescription", "nakime" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "nakime" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 omegaui. All rights reserved." "\0"
             VALUE "OriginalFilename", "nakime.exe" "\0"
             VALUE "ProductName", "nakime" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
