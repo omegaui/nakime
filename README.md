@@ -19,7 +19,7 @@ Please view the video above to know more.
 - 👌 See Live Session Uptime right when you open the app
 - 🪸 System Uptime Graph
 - 📀 Export your usage data in excel or json format
-- ❤️ Dedicated command-line tool (called '[uptime](https://github.com/omegaui/uptime)')
+- ❤️ Dedicated command-line tool (called '[session-uptime](https://github.com/omegaui/uptime)')
 
 ## Installing
 ### Compatibilty
