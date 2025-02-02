@@ -9,7 +9,7 @@ https://github.com/user-attachments/assets/8f6274f1-18b9-4f26-8694-257ce0428bbc
 </div>
 
 ## Description
-Nakime is a Windows session uptime tracker. It records **when your system was turned on**, **how long it stayed up**, **when it was shut down**, and the **idle time between sessions**. You can also view a graph of system uptime for a selected time period. 
+Nakime is a Windows session uptime tracker. It records **when your system was turned on**, **how long it stayed up**, **when it was shut down**, and the **idle time between sessions**. On a Laptop, Windows triggers Suspend instead of Shutdown, but Nakime still works in this state. You can also view a graph of system uptime for a selected time period. 
 
 Please view the video above to know more.
 
