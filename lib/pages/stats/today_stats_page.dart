@@ -123,26 +123,28 @@ class _TodayStatsPageState extends State<TodayStatsPage> {
                   ),
                 ],
               ),
-              IconButton(
-                onPressed: () async {
-                  final exportPath = await SessionExportUtils.exportExcel(
-                    _sessions,
-                  );
-                  launchUrlString("file://$exportPath");
-                },
-                tooltip: "Export your usage data in excel format",
-                icon: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text("Export"),
-                    const Gap(4),
-                    Icon(
-                      Icons.download_rounded,
-                      color: AppColors.onSurface,
-                    ),
-                  ],
+              if (_sessions.isNotEmpty) ...[
+                IconButton(
+                  onPressed: () async {
+                    final exportPath = await SessionExportUtils.exportExcel(
+                      _sessions,
+                    );
+                    launchUrlString("file://$exportPath");
+                  },
+                  tooltip: "Export your usage data in excel format",
+                  icon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text("Export"),
+                      const Gap(4),
+                      Icon(
+                        Icons.download_rounded,
+                        color: AppColors.onSurface,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

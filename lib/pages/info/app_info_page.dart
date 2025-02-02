@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:lottie/lottie.dart';
 import 'package:nakime/config/app_animations.dart';
 import 'package:nakime/config/app_colors.dart';
 import 'package:nakime/core/extras.dart';
+import 'package:nakime/core/updates/update_info.dart';
 import 'package:nakime/main.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -42,7 +46,35 @@ class AppInfoPage extends StatelessWidget {
                   ],
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    showSnackbar(
+                      "Checking for updates",
+                      "Please make sure that your firewall allows accessing GitHub",
+                      stayLonger: false,
+                    );
+                    final info = await UpdateInfo.checkForUpdates();
+                    if (info.error != null) {
+                      showSnackbar(
+                        "Error Occurred while checking for updates",
+                        info.error!,
+                      );
+                    } else if (info.available) {
+                      showSnackbar(
+                        "Update Available",
+                        "${info.version} is available to install, click to see release notes.",
+                        onTap: () {
+                          launchUrlString(
+                            'https://github.com/omegaui/nakime/releases/latest',
+                          );
+                        },
+                      );
+                    } else {
+                      showSnackbar(
+                        "No updates available",
+                        "You are already running the latest stable version of Nakime.",
+                      );
+                    }
+                  },
                   icon: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

@@ -22,7 +22,7 @@ class _FAQs {
     _FAQ(
       question: "How to check for app updates?",
       answer:
-          "By going to 'App Info' page, you can see a button saying 'Check for updates' on the top right corner. Make sure to have internet connection before clicking it, when you do so, it checks Nakime's GitHub repository 'release' branch for updates, if there are any updates available you will be redirected to GitHub release page.",
+          "By going to 'App Info' page, you can see a button saying 'Check for updates' on the top right corner. Make sure to have internet connection before clicking it, when you do so, it checks Nakime's GitHub repository 'main' branch for updates, if there are any updates available you will be redirected to GitHub release page.",
     ),
     _FAQ(
       question: "Can I export my data in JSON format?",
@@ -38,6 +38,11 @@ class _FAQs {
       question: "Where are all my data exported in excel format stored?",
       answer:
           "You can find all your exports at 'C:\\ProgramData\\Nakime\\exports'.",
+    ),
+    _FAQ(
+      question: "Does Nakime collects any of my data in any way?",
+      answer:
+          "No, not at all. Nakime never collects your data. The internet connection is only used to install the Poppins font on first launch and when you check for updates in the 'App Info' page. Nakime is open-source, and you can verify this by checking its source code at https://github.com/omegaui/nakime.",
     ),
   ];
 }
